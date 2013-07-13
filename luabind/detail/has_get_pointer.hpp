@@ -25,9 +25,7 @@
 
 # include <boost/type_traits/add_reference.hpp>
 
-# ifndef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-#  include <memory>
-# endif
+# include <memory>
 
 namespace luabind { namespace detail {
 
@@ -52,31 +50,19 @@ namespace has_get_pointer_
 // namespace as well as in luabind::. Otherwise get_pointer(any)
 // will be found before them.
 //
-# ifndef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-
   template<class T>
   T* get_pointer(T const volatile*);
 
   template<class T>
   T* get_pointer(std::auto_ptr<T> const&);
 
-# endif
-
 //
 // On compilers that doesn't support ADL, the overload below has to
 // live in luabind::.
 //
-# ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-}} // namespace detail::has_get_pointer_
-# endif
 
 detail::has_get_pointer_::no_overload_tag
   get_pointer(detail::has_get_pointer_::any);
-
-# ifdef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
-namespace detail { namespace has_get_pointer_
-{
-# endif
 
   template<class T>
   yes check(T const&);
