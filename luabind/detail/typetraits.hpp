@@ -35,68 +35,6 @@
 namespace luabind { namespace detail
 {
 
-#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
-
-    template<class T>
-    struct is_const_type
-    {
-        typedef typename boost::mpl::if_<boost::is_const<T>
-            , yes_t
-            , no_t
-        >::type type;
-    };
-
-    template<bool is_Reference = false>
-    struct is_const_reference_helper
-    {
-        template<class>
-        struct apply
-        {
-            enum
-            {
-                value = false
-            };
-        };
-    };
-
-    template<class T>
-    typename is_const_type<T>::type is_const_reference_tester(T&);
-    no_t is_const_reference_tester(...);
-
-    template<>
-    struct is_const_reference_helper<true>
-    {
-        template<class T>
-        struct apply
-        {
-            static T getT();
-
-            enum
-            {
-                value = sizeof(is_const_reference_tester(getT())) == sizeof(yes_t)
-            };
-        };
-    };
-
-    template<class T>
-    struct is_const_reference
-        : is_const_reference_helper<boost::is_reference<T>::value>::template apply<T>
-    {
-        typedef boost::mpl::bool_<value> type;
-    };
-
-    template<class T>
-    struct is_nonconst_reference
-    {
-        enum
-        {
-            value = boost::is_reference<T>::value && !is_const_reference<T>::value
-        };
-        typedef boost::mpl::bool_<value> type;
-    };
-
-#else
-
     template<class T>
     struct is_const_reference
     {
@@ -124,8 +62,6 @@ namespace luabind { namespace detail
         enum { value = !is_const_reference<T&>::value };
         typedef boost::mpl::bool_<value> type;
     };
-
-#endif
 
     template<class A>
     yes_t is_const_pointer_helper(void(*)(const A*));

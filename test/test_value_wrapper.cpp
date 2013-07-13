@@ -33,21 +33,12 @@ struct X
 
 namespace luabind
 {
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-  template<>
-  struct value_wrapper_traits<X_tag>
-  {
-      typedef boost::mpl::true_ is_specialized;
-  };
-#else
   // used on compilers supporting partial template specialization
   template<>
   struct value_wrapper_traits<X>
   {
       typedef boost::mpl::true_ is_specialized;
   };
-#endif
-
 } // namespace luabind
 
 BOOST_MPL_ASSERT(( luabind::is_value_wrapper<X> ));

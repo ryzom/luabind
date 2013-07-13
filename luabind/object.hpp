@@ -342,19 +342,11 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
       }
   };
 
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-  struct iterator_proxy_tag;
-#endif
-
   template<class AccessPolicy>
   class iterator_proxy
     : public object_interface<iterator_proxy<AccessPolicy> >
   {
   public:
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-      typedef iterator_proxy_tag value_wrapper_tag;
-#endif
-
       iterator_proxy(lua_State* L, handle const& table, handle const& key)
         : m_interpreter(L)
         , m_table_index(lua_gettop(L) + 1)
@@ -571,19 +563,11 @@ namespace detail
 namespace adl
 {
 
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-  struct index_proxy_tag;
-#endif
-
   template<class Next>
   class index_proxy
     : public object_interface<index_proxy<Next> >
   {
   public:
-#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
-      typedef index_proxy_tag value_wrapper_tag;
-#endif
-
       typedef index_proxy<Next> this_type;
 
       template<class Key>
@@ -675,13 +659,8 @@ namespace adl
 typedef detail::basic_iterator<detail::basic_access> iterator;
 typedef detail::basic_iterator<detail::raw_access> raw_iterator;
 
-#ifndef LUABIND_USE_VALUE_WRAPPER_TAG
 template<class T>
 struct value_wrapper_traits<adl::index_proxy<T> >
-#else
-template<>
-struct value_wrapper_traits<adl::index_proxy_tag>
-#endif
 {
     typedef boost::mpl::true_ is_specialized;
 
@@ -698,13 +677,8 @@ struct value_wrapper_traits<adl::index_proxy_tag>
     }
 };
 
-#ifndef LUABIND_USE_VALUE_WRAPPER_TAG
 template<class AccessPolicy>
 struct value_wrapper_traits<adl::iterator_proxy<AccessPolicy> >
-#else
-template<>
-struct value_wrapper_traits<adl::iterator_proxy_tag>
-#endif
 {
     typedef boost::mpl::true_ is_specialized;
 
@@ -831,13 +805,8 @@ namespace adl
 using adl::object;
 using adl::argument;
 
-#ifndef LUABIND_USE_VALUE_WRAPPER_TAG
 template <class ValueWrapper, class Arguments>
 struct value_wrapper_traits<adl::call_proxy<ValueWrapper, Arguments> >
-#else
-template<>
-struct value_wrapper_traits<adl::call_proxy_tag>
-#endif
 {
     typedef boost::mpl::true_ is_specialized;
 
