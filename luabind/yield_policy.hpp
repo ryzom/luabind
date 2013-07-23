@@ -27,13 +27,13 @@
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>
 
-namespace luabind { namespace detail 
+namespace luabind { namespace detail
 {
-	struct yield_policy
-	{
-		static void precall(lua_State*, const index_map&) {}
-		static void postcall(lua_State*, const index_map&) {}
-	};
+    struct yield_policy
+    {
+        static void precall(lua_State*, const index_map&) {}
+        static void postcall(lua_State*, const index_map&) {}
+    };
 }}
 
 namespace luabind
@@ -50,4 +50,3 @@ namespace luabind
 }
 
 #endif // LUABIND_YIELD_POLICY_HPP_INCLUDED
-

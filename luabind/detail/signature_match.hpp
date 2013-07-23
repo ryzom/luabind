@@ -39,10 +39,10 @@
 namespace luabind
 {
 
-	namespace adl
-	{
-		class argument;
-	}
+    namespace adl
+    {
+        class argument;
+    }
 
 # ifdef LUABIND_CPP0x
 
@@ -54,21 +54,20 @@ namespace luabind
 
 # else
 
-	template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(LUABIND_MAX_ARITY, class A, detail::null_type)>
-	struct constructor
-	{
-		typedef BOOST_PP_CAT(
-			boost::mpl::vector, BOOST_PP_INC(BOOST_PP_INC(LUABIND_MAX_ARITY)))<
-				void, argument const&, BOOST_PP_ENUM_PARAMS(LUABIND_MAX_ARITY, A)
-		> signature0;
+    template<BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(LUABIND_MAX_ARITY, class A, detail::null_type)>
+    struct constructor
+    {
+        typedef BOOST_PP_CAT(
+            boost::mpl::vector, BOOST_PP_INC(BOOST_PP_INC(LUABIND_MAX_ARITY)))<
+                void, argument const&, BOOST_PP_ENUM_PARAMS(LUABIND_MAX_ARITY, A)
+        > signature0;
 
-		typedef typename boost::mpl::remove<
-			signature0, detail::null_type>::type signature;
-	};
+        typedef typename boost::mpl::remove<
+            signature0, detail::null_type>::type signature;
+    };
 
 # endif // LUABIND_CPP0x
 
 }
 
 #endif // LUABIND_SIGNATURE_MATCH_HPP_INCLUDED
-

@@ -67,4 +67,3 @@ test-suite test
   :
   # default-build
   : <link>static <link>shared release debug ;
-

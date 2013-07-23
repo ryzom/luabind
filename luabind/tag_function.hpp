@@ -107,5 +107,3 @@ struct signature_from_function<R(BOOST_PP_ENUM_PARAMS(N, A))>
 };
 
 #endif // BOOST_PP_IS_ITERATING
-
-

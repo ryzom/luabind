@@ -28,33 +28,33 @@
 
 namespace luabind { namespace detail
 {
-	int pcall(lua_State *L, int nargs, int nresults)
-	{
-		pcall_callback_fun e = get_pcall_callback();
-		int en = 0;
-		if ( e )
-		{
-			int base = lua_gettop(L) - nargs;
-			lua_pushcfunction(L, e);
-			lua_insert(L, base);  // push pcall_callback under chunk and args
-			en = base;
-  		}
-		int result = lua_pcall(L, nargs, nresults, en);
-		if ( en )
-			lua_remove(L, en);  // remove pcall_callback
-		return result;
-	}
+    int pcall(lua_State *L, int nargs, int nresults)
+    {
+        pcall_callback_fun e = get_pcall_callback();
+        int en = 0;
+        if ( e )
+        {
+            int base = lua_gettop(L) - nargs;
+            lua_pushcfunction(L, e);
+            lua_insert(L, base);  // push pcall_callback under chunk and args
+            en = base;
+        }
+        int result = lua_pcall(L, nargs, nresults, en);
+        if ( en )
+            lua_remove(L, en);  // remove pcall_callback
+        return result;
+    }
 
-	int resume_impl(lua_State *L, int nargs, int)
-	{
+    int resume_impl(lua_State *L, int nargs, int)
+    {
 #if LUA_VERSION_NUM >= 501
-		// Lua 5.1 added  LUA_YIELD as a possible return value,
-		// this was causing crashes, because the caller expects 0 on success.
-		int res = lua_resume(L, nargs);
-		return (res == LUA_YIELD) ? 0 : res;
+        // Lua 5.1 added  LUA_YIELD as a possible return value,
+        // this was causing crashes, because the caller expects 0 on success.
+        int res = lua_resume(L, nargs);
+        return (res == LUA_YIELD) ? 0 : res;
 #else
-		return lua_resume(L, nargs);
+        return lua_resume(L, nargs);
 #endif
-	}
+    }
 
 }}
