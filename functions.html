@@ -69,7 +69,7 @@ following synopsis:</p>
 <li>F is the function pointer you want to register.</li>
 <li>The Policies parameter is used to describe how parameters and return values
 are treated by the function, this is an optional parameter. More on this in
-the <em class="xref std std-ref">part-policies</em> section.</li>
+the <a class="reference internal" href="policies.html#part-policies"><em>Policies</em></a> section.</li>
 </ul>
 <p>An example usage could be if you want to register the function <tt class="docutils literal"><span class="pre">float</span>
 <span class="pre">std::sin(float)</span></tt>:</p>
@@ -111,7 +111,7 @@ isn&#8217;t.</p>
 <div class="sidebar">
 <p class="first sidebar-title">Ownership transfer</p>
 <p class="last">To correctly handle ownership transfer, create_a() would need an adopt
-return value policy. More on this in the <em class="xref std std-ref">part-policies</em> section.</p>
+return value policy. More on this in the <a class="reference internal" href="policies.html#part-policies"><em>Policies</em></a> section.</p>
 </div>
 <p>For example, if the following function and class is registered:</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span>
@@ -206,7 +206,7 @@ value passed in to <tt class="docutils literal"><span class="pre">lua_yield()</s
 it one. The parameters to <tt class="docutils literal"><span class="pre">resume()</span></tt> will be returned by <tt class="docutils literal"><span class="pre">yield()</span></tt> on the Lua side.</p>
 <p>For yielding C++-functions (without the support of passing data back and forth between the
 Lua side and the c++ side), you can use the <a class="reference internal" href="policies.html#policy-yield"><em>yield</em></a> policy.</p>
-<p>With the overload of <tt class="docutils literal"><span class="pre">resume_function</span></tt> that takes an <em class="xref std std-ref">part-object</em>,
+<p>With the overload of <tt class="docutils literal"><span class="pre">resume_function</span></tt> that takes an <a class="reference internal" href="object.html#part-object"><em>Object</em></a>,
 it is important that the object was constructed with the thread as its
 <tt class="docutils literal"><span class="pre">lua_State*</span></tt>. Like this:</p>
 <pre class="literal-block">
@@ -309,7 +309,7 @@ It can be used like this:</p>
       </ul>
     </div>
     <div class="footer">
-        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+        &copy; Copyright 2005 Rasterbar Software; 2013 Christian Neumüller.
       Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
     </div>
   </body>
