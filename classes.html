@@ -39,11 +39,8 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
           <a href="userdefined-converters.html" title="Adding converters for user defined types"
-             accesskey="N">next</a> |</li>
+             accesskey="N">next</a></li>
         <li class="right" >
           <a href="functions.html" title="Binding functions to Lua"
              accesskey="P">previous</a> |</li>
@@ -87,10 +84,11 @@ namespace luabind):</p>
 </div>
 <p>This will register the class with the name testclass and constructor that takes
 a string as argument and one member function with the name <tt class="docutils literal"><span class="pre">print_string</span></tt>.</p>
-<div class="highlight-c++"><pre>Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
-&gt; a = testclass('a string')
-&gt; a:print_string()
-a string</pre>
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">Lua</span> <span class="mf">5.0</span>  <span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">1994</span><span class="o">-</span><span class="mi">2003</span> <span class="n">Tecgraf</span><span class="p">,</span> <span class="n">PUC</span><span class="o">-</span><span class="n">Rio</span>
+<span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">testclass</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">a string&#39;</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">a</span><span class="p">:</span><span class="n">print_string</span><span class="p">()</span>
+<span class="n">a</span> <span class="n">string</span>
+</pre></div>
 </div>
 <p>It is also possible to register free functions as member functions. The
 requirement on the function is that it takes a pointer, const pointer,
@@ -175,9 +173,9 @@ For example, when having a struct containing another struct. Like this:</p>
 </pre></div>
 </div>
 <p>When binding <tt class="docutils literal"><span class="pre">B</span></tt> to lua, the following expression code should work:</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
 <span class="n">b</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
-<span class="n">assert</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+<span class="nb">assert</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This requires the first lookup (on <tt class="docutils literal"><span class="pre">a</span></tt>) to return a reference to <tt class="docutils literal"><span class="pre">A</span></tt>, and
@@ -228,10 +226,10 @@ any integer. You register them like this:</p>
 </div>
 <p>In Lua they are accessed like any data member, except that they are read-only
 and reached on the class itself rather than on an instance of the class.</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="n">Lua</span> <span class="mf">5.0</span>  <span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">1994</span><span class="o">-</span><span class="mi">2003</span> <span class="n">Tecgraf</span><span class="p">,</span> <span class="n">PUC</span><span class="o">-</span><span class="n">Rio</span>
-<span class="o">&gt;</span> <span class="n">print</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">my_enum</span><span class="p">)</span>
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">Lua</span> <span class="mf">5.0</span>  <span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">1994</span><span class="o">-</span><span class="mi">2003</span> <span class="n">Tecgraf</span><span class="p">,</span> <span class="n">PUC</span><span class="o">-</span><span class="n">Rio</span>
+<span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">my_enum</span><span class="p">)</span>
 <span class="mi">4</span>
-<span class="o">&gt;</span> <span class="n">print</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">another_enum</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">another_enum</span><span class="p">)</span>
 <span class="mi">6</span>
 </pre></div>
 </div>
@@ -270,7 +268,7 @@ module(L)
 </pre>
 <p>The operators supported are those available in Lua:</p>
 <pre class="literal-block">
-+    -    *    /    ==    &lt;    &lt;=
++    -    *    /    ==    &lt;    &lt;=    %
 </pre>
 <p>This means, no in-place operators. The equality operator (<tt class="docutils literal"><span class="pre">==</span></tt>) has a little
 hitch; it will not be called if the references are equal. This means that the
@@ -324,6 +322,12 @@ module(L)
         .def(<strong>tostring(self)</strong>)
 ];
 </pre>
+<p>If you do not define a <tt class="docutils literal"><span class="pre">__tostring</span></tt> operator, Luabind supplies a default
+which result in strings of the form <tt class="docutils literal"><span class="pre">[const]</span> <span class="pre">&lt;type&gt;</span> <span class="pre">object:</span> <span class="pre">&lt;address&gt;</span></tt>, i.e.
+<tt class="docutils literal"><span class="pre">const</span></tt> is prepended if the object is const, <tt class="docutils literal"><span class="pre">&lt;type&gt;</span></tt> will be the string
+you supplied to <tt class="docutils literal"><span class="pre">class_</span></tt> (or a string derived from <cite>std::type_info::name</cite>
+for unnamed classes) and <tt class="docutils literal"><span class="pre">&lt;address&gt;</span></tt> will be the address of the Lua userdata
+(meaning that different addresses could refer to the same C++ object).</p>
 </div>
 <div class="section" id="nested-scopes-and-static-functions">
 <h2>Nested scopes and static functions<a class="headerlink" href="#nested-scopes-and-static-functions" title="Permalink to this headline">¶</a></h2>
@@ -555,6 +559,20 @@ from <tt class="docutils literal"><span class="pre">false</span></tt> to <tt cla
 <p>(<tt class="docutils literal"><span class="pre">lua_close</span></tt> happens to be a valid <tt class="docutils literal"><span class="pre">state_unreferenced_fun</span></tt>.)</p>
 </div>
 </div>
+<div class="section" id="unnamed-classes">
+<h2>Unnamed classes<a class="headerlink" href="#unnamed-classes" title="Permalink to this headline">¶</a></h2>
+<p>You can register unnamed classes by not passing a name to <tt class="docutils literal"><span class="pre">class_</span></tt>:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">class_</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>This does not export the class object itself to Lua, meaning that
+constructors cannot be called and enums are only accessible via objects of
+this class&#8217; type.</p>
+<p>This is useful e.g. for registering multiple instantiations of a class
+template, and construct a matching instance using a factory function,
+like boost::make_shared of for hiding intermediate classes in inheritance
+hierarchies.</p>
+</div>
 <div class="section" id="splitting-class-registrations">
 <span id="sec-split-cls-registration"></span><h2>Splitting class registrations<a class="headerlink" href="#splitting-class-registrations" title="Permalink to this headline">¶</a></h2>
 <p>In some situations it may be desirable to split a registration of a class
@@ -609,6 +627,7 @@ units.</p>
 <li><a class="reference internal" href="#additional-support-for-shared-ptr-and-intrusive-ptr">Additional support for shared_ptr and intrusive_ptr</a></li>
 </ul>
 </li>
+<li><a class="reference internal" href="#unnamed-classes">Unnamed classes</a></li>
 <li><a class="reference internal" href="#splitting-class-registrations">Splitting class registrations</a></li>
 </ul>
 </li>
@@ -641,11 +660,8 @@ units.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
           <a href="userdefined-converters.html" title="Adding converters for user defined types"
-             >next</a> |</li>
+             >next</a></li>
         <li class="right" >
           <a href="functions.html" title="Binding functions to Lua"
              >previous</a> |</li>

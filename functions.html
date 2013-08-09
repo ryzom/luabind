@@ -39,11 +39,8 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
           <a href="classes.html" title="Binding classes to Lua"
-             accesskey="N">next</a> |</li>
+             accesskey="N">next</a></li>
         <li class="right" >
           <a href="scopes.html" title="Scopes"
              accesskey="P">previous</a> |</li>
@@ -130,19 +127,19 @@ return value policy. More on this in the <a class="reference internal" href="pol
 </pre></div>
 </div>
 <p>And the following Lua code is executed:</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="n">a1</span> <span class="o">=</span> <span class="n">create_a</span><span class="p">()</span>
-<span class="nl">a1:</span><span class="n">f</span><span class="p">()</span> <span class="o">--</span> <span class="n">the</span> <span class="k">const</span> <span class="n">version</span> <span class="n">is</span> <span class="n">called</span>
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">a1</span> <span class="o">=</span> <span class="n">create_a</span><span class="p">()</span>
+<span class="n">a1</span><span class="p">:</span><span class="n">f</span><span class="p">()</span> <span class="c1">-- the const version is called</span>
 
 <span class="n">a2</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
-<span class="nl">a2:</span><span class="n">f</span><span class="p">()</span> <span class="o">--</span> <span class="n">the</span> <span class="n">non</span><span class="o">-</span><span class="k">const</span> <span class="n">version</span> <span class="n">is</span> <span class="n">called</span>
+<span class="n">a2</span><span class="p">:</span><span class="n">f</span><span class="p">()</span> <span class="c1">-- the non-const version is called</span>
 
 <span class="n">a</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
 
-<span class="n">g</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">--</span> <span class="n">calls</span> <span class="n">g</span><span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="p">)</span>
-<span class="n">g</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">--</span> <span class="n">calls</span> <span class="n">g</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="p">)</span>
-<span class="n">g</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">--</span> <span class="n">calls</span> <span class="n">g</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="p">)</span>
+<span class="n">g</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="c1">-- calls g(A*)</span>
+<span class="n">g</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="c1">-- calls g(B*)</span>
+<span class="n">g</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="c1">-- calls g(B*)</span>
 </pre></div>
 </div>
 </div>
@@ -297,11 +294,8 @@ It can be used like this:</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
           <a href="classes.html" title="Binding classes to Lua"
-             >next</a> |</li>
+             >next</a></li>
         <li class="right" >
           <a href="scopes.html" title="Scopes"
              >previous</a> |</li>

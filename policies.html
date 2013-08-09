@@ -39,11 +39,8 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
           <a href="split-registration.html" title="Splitting up the registration"
-             accesskey="N">next</a> |</li>
+             accesskey="N">next</a></li>
         <li class="right" >
           <a href="exceptions.html" title="Exceptions"
              accesskey="P">previous</a> |</li>
@@ -117,14 +114,13 @@ to the <tt class="docutils literal"><span class="pre">this</span></tt> pointer.<
 </div>
 <div class="section" id="example">
 <h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">X</span><span class="o">*</span> <span class="nf">create</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="k">new</span> <span class="n">X</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-X* create()
-{
-    return new X;
-}
-
-...
-
 module(L)
 [
     def(&quot;create&quot;, &amp;create, <strong>adopt(result)</strong>)
@@ -175,13 +171,14 @@ This is needed for example when returning internal references to some class.</p>
 </div>
 <div class="section" id="id5">
 <h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">X</span>
+<span class="p">{</span>
+    <span class="n">B</span> <span class="n">member</span><span class="p">;</span>
+    <span class="n">B</span><span class="o">&amp;</span> <span class="n">get</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">member</span><span class="p">;</span> <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-struct X
-{
-    B member;
-    B&amp; get() { return member; }
-};
-
 module(L)
 [
     class_&lt;X&gt;(&quot;X&quot;)
@@ -240,21 +237,23 @@ C++.</td>
 </div>
 <div class="section" id="id10">
 <h3>Example<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">f1</span><span class="p">(</span><span class="kt">float</span><span class="o">&amp;</span> <span class="n">val</span><span class="p">)</span> <span class="p">{</span> <span class="n">val</span> <span class="o">=</span> <span class="n">val</span> <span class="o">+</span> <span class="mf">10.f</span><span class="p">;</span> <span class="p">}</span>
+<span class="kt">void</span> <span class="nf">f2</span><span class="p">(</span><span class="kt">float</span><span class="o">*</span> <span class="n">val</span><span class="p">)</span> <span class="p">{</span> <span class="o">*</span><span class="n">val</span> <span class="o">=</span> <span class="o">*</span><span class="n">val</span> <span class="o">+</span> <span class="mf">10.f</span><span class="p">;</span> <span class="p">}</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-void f1(float&amp; val) { val = val + 10.f; }
-void f2(float* val) { *val = *val + 10.f; }
-
 module(L)
 [
     def(&quot;f&quot;, &amp;f, <strong>out_value(_1)</strong>)
 ];
-
-Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
-&gt; print(f1(10))
-20
-&gt; print(f2(10))
-20
 </pre>
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">Lua</span> <span class="mf">5.0</span>  <span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">1994</span><span class="o">-</span><span class="mi">2003</span> <span class="n">Tecgraf</span><span class="p">,</span> <span class="n">PUC</span><span class="o">-</span><span class="n">Rio</span>
+<span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">f1</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="mi">20</span>
+<span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">f2</span><span class="p">(</span><span class="mi">10</span><span class="p">))</span>
+<span class="mi">20</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="pure-out-value">
@@ -304,21 +303,22 @@ to Lua. <tt class="docutils literal"><span class="pre">_1</span></tt> is used as
 <div class="section" id="id15">
 <h3>Example<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
 <p>Note that no values are passed to the calls to <tt class="docutils literal"><span class="pre">f1</span></tt> and <tt class="docutils literal"><span class="pre">f2</span></tt>.</p>
+<div class="highlight-c++"><pre>void f1(float&amp; val) { val = 10.f; }
+void f2(float\* val) { \*val = 10.f; }</pre>
+</div>
 <pre class="literal-block">
-void f1(float&amp; val) { val = 10.f; }
-void f2(float* val) { *val = 10.f; }
-
 module(L)
 [
     def(&quot;f&quot;, &amp;f, <strong>pure_out_value(_1)</strong>)
 ];
-
-Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
-&gt; print(f1())
-10
-&gt; print(f2())
-10
 </pre>
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">Lua</span> <span class="mf">5.0</span>  <span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">1994</span><span class="o">-</span><span class="mi">2003</span> <span class="n">Tecgraf</span><span class="p">,</span> <span class="n">PUC</span><span class="o">-</span><span class="n">Rio</span>
+<span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">f1</span><span class="p">())</span>
+<span class="mi">10</span>
+<span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">f2</span><span class="p">())</span>
+<span class="mi">10</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="return-reference-to">
@@ -378,18 +378,19 @@ not <tt class="docutils literal"><span class="pre">result</span></tt>.</td>
 </div>
 <div class="section" id="id20">
 <h3>Example<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">val</span><span class="p">;</span>
+
+    <span class="n">A</span><span class="o">&amp;</span> <span class="n">set</span><span class="p">(</span><span class="kt">float</span> <span class="n">v</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">v</span><span class="p">;</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-struct A
-{
-    float val;
-
-    A&amp; set(float v)
-    {
-        val = v;
-        return *this;
-    }
-};
-
 module(L)
 [
     class_&lt;A&gt;(&quot;A&quot;)
@@ -448,15 +449,14 @@ functions. <tt class="docutils literal"><span class="pre">_N</span></tt> when pa
 </div>
 <div class="section" id="id25">
 <h3>Example<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">X</span><span class="o">*</span> <span class="nf">get</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">static</span> <span class="n">X</span> <span class="n">instance</span><span class="p">;</span>
+    <span class="k">return</span> <span class="o">&amp;</span><span class="n">instance</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-X* get()
-{
-    static X instance;
-    return &amp;instance;
-}
-
-...
-
 module(L)
 [
     def(&quot;create&quot;, &amp;create, <strong>copy(result)</strong>)
@@ -486,18 +486,17 @@ Lua.</p>
 </div>
 <div class="section" id="id29">
 <h3>Example<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">X</span>
+<span class="p">{</span>
+    <span class="n">X</span><span class="o">&amp;</span> <span class="n">set</span><span class="p">(</span><span class="n">T</span> <span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="p">...</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-struct X
-{
-    X&amp; set(T n)
-    {
-        ...
-        return *this;
-    }
-};
-
-...
-
 module(L)
 [
     class_&lt;X&gt;(&quot;X&quot;)
@@ -528,27 +527,25 @@ in lua to iterate over the container. It works on any container that defines
 </div>
 <div class="section" id="id33">
 <h3>Example<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">X</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">names</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-struct X
-{
-    std::vector&lt;std::string&gt; names;
-};
-
-...
-
 module(L)
 [
     class_&lt;A&gt;(&quot;A&quot;)
         .def_readwrite(&quot;names&quot;, &amp;X::names, <strong>return_stl_iterator</strong>)
 ];
-
-...
-
-&gt; a = A()
-&gt; for name in a.names do
-&gt;  print(name)
-&gt; end
 </pre>
+<div class="highlight-lua"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="k">for</span> <span class="n">name</span> <span class="k">in</span> <span class="n">a</span><span class="p">.</span><span class="n">names</span> <span class="k">do</span>
+<span class="o">&gt;</span>  <span class="nb">print</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="k">end</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="raw">
@@ -598,22 +595,22 @@ function signature, decreasing the function arity by one.</p>
 </div>
 <div class="section" id="id38">
 <h3>Example<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">greet</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">lua_pushstring</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="s">&quot;hello&quot;</span><span class="p">);</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-void greet(lua_State* L)
-{
-    lua_pushstring(L, &quot;hello&quot;);
-}
-
-...
-
 module(L)
 [
     def(&quot;greet&quot;, &amp;greet, <strong>raw(_1)</strong>)
 ];
-
-&gt; print(greet())
-hello
 </pre>
+<div class="highlight-lua"><div class="highlight"><pre><span class="o">&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">greet</span><span class="p">())</span>
+<span class="n">hello</span>
+</pre></div>
+</div>
 </div>
 </div>
 <div class="section" id="yield">
@@ -636,14 +633,13 @@ hello
 </div>
 <div class="section" id="id42">
 <h3>Example<a class="headerlink" href="#id42" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">do_thing_that_takes_time</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
 <pre class="literal-block">
-void do_thing_that_takes_time()
-{
-    ...
-}
-
-...
-
 module(L)
 [
     def(&quot;do_thing_that_takes_time&quot;, &amp;do_thing_that_takes_time, <strong>yield</strong>)
@@ -770,11 +766,8 @@ module(L)
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
           <a href="split-registration.html" title="Splitting up the registration"
-             >next</a> |</li>
+             >next</a></li>
         <li class="right" >
           <a href="exceptions.html" title="Exceptions"
              >previous</a> |</li>

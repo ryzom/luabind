@@ -34,7 +34,7 @@ namespace luabind)::
 This will register the class with the name testclass and constructor that takes
 a string as argument and one member function with the name ``print_string``.
 
-::
+.. code-block:: lua
 
     Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
     > a = testclass('a string')
@@ -134,7 +134,9 @@ For example, when having a struct containing another struct. Like this::
     struct A { int m; };
     struct B { A a; };
 
-When binding ``B`` to lua, the following expression code should work::
+When binding ``B`` to lua, the following expression code should work:
+
+.. code-block:: lua
 
     b = B()
     b.a.m = 1
@@ -192,7 +194,7 @@ any integer. You register them like this::
 In Lua they are accessed like any data member, except that they are read-only
 and reached on the class itself rather than on an instance of the class.
 
-::
+.. code-block:: lua
 
     Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
     > print(A.my_enum)
@@ -244,7 +246,7 @@ The operators supported are those available in Lua:
 
 .. parsed-literal::
 
-    +    -    \*    /    ==    <    <=
+    +    -    \*    /    ==    <    <=    %
 
 This means, no in-place operators. The equality operator (``==``) has a little
 hitch; it will not be called if the references are equal. This means that the
@@ -309,6 +311,13 @@ std::ostream. Like this example:
         class_<number>("number")
             .def(**tostring(self)**)
     ];
+
+If you do not define a ``__tostring`` operator, Luabind supplies a default
+which result in strings of the form ``[const] <type> object: <address>``, i.e.
+``const`` is prepended if the object is const, ``<type>`` will be the string
+you supplied to ``class_`` (or a string derived from `std::type_info::name`
+for unnamed classes) and ``<address>`` will be the address of the Lua userdata
+(meaning that different addresses could refer to the same C++ object).
 
 
 Nested scopes and static functions
@@ -545,6 +554,23 @@ with ::
         luabind::set_state_unreferenced_callback(L, &lua_close);
 
 (``lua_close`` happens to be a valid ``state_unreferenced_fun``.)
+
+
+Unnamed classes
+---------------
+
+You can register unnamed classes by not passing a name to ``class_``::
+
+    class_<X>()
+
+This does not export the class object itself to Lua, meaning that
+constructors cannot be called and enums are only accessible via objects of
+this class' type.
+
+This is useful e.g. for registering multiple instantiations of a class
+template, and construct a matching instance using a factory function,
+like boost::make_shared of for hiding intermediate classes in inheritance
+hierarchies.
 
 
 .. _sec-split-cls-registration:

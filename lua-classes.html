@@ -39,11 +39,8 @@
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             accesskey="I">index</a></li>
-        <li class="right" >
           <a href="exceptions.html" title="Exceptions"
-             accesskey="N">next</a> |</li>
+             accesskey="N">next</a></li>
         <li class="right" >
           <a href="object.html" title="Object"
              accesskey="P">previous</a> |</li>
@@ -60,30 +57,32 @@
 <h1>Defining classes in Lua<a class="headerlink" href="#defining-classes-in-lua" title="Permalink to this headline">¶</a></h1>
 <p>In addition to binding C++ functions and classes with Lua, luabind also provide
 an OO-system in Lua.</p>
-<div class="highlight-c++"><pre>class 'lua_testclass'
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">class</span> <span class="s1">&#39;</span><span class="s">lua_testclass&#39;</span>
 
-function lua_testclass:__init(name)
-    self.name = name
-end
+<span class="k">function</span> <span class="nf">lua_testclass</span><span class="p">:</span><span class="n">__init</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">self</span><span class="p">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+<span class="k">end</span>
 
-function lua_testclass:print()
-    print(self.name)
-end
+<span class="k">function</span> <span class="nf">lua_testclass</span><span class="p">:</span><span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">name</span><span class="p">)</span>
+<span class="k">end</span>
 
-a = lua_testclass('example')
-a:print()</pre>
+<span class="n">a</span> <span class="o">=</span> <span class="n">lua_testclass</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">example&#39;</span><span class="p">)</span>
+<span class="n">a</span><span class="p">:</span><span class="nb">print</span><span class="p">()</span>
+</pre></div>
 </div>
 <p>Inheritance can be used between lua-classes:</p>
-<div class="highlight-c++"><pre>class 'derived' (lua_testclass)
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">class</span> <span class="s1">&#39;</span><span class="s">derived&#39;</span> <span class="p">(</span><span class="n">lua_testclass</span><span class="p">)</span>
 
-function derived:__init()
-    lua_testclass.__init(self, 'derived name')
-end
+<span class="k">function</span> <span class="nf">derived</span><span class="p">:</span><span class="n">__init</span><span class="p">()</span>
+    <span class="n">lua_testclass</span><span class="p">.</span><span class="n">__init</span><span class="p">(</span><span class="n">self</span><span class="p">,</span> <span class="s1">&#39;</span><span class="s">derived name&#39;</span><span class="p">)</span>
+<span class="k">end</span>
 
-function derived:print()
-    print('Derived:print() -&gt; ')
-    lua_testclass.print(self)
-end</pre>
+<span class="k">function</span> <span class="nf">derived</span><span class="p">:</span><span class="nb">print</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;</span><span class="s">Derived:print() -&gt; &#39;</span><span class="p">)</span>
+    <span class="n">lua_testclass</span><span class="p">.</span><span class="n">print</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+<span class="k">end</span>
+</pre></div>
 </div>
 <p>The base class is initialized explicitly by calling its <tt class="docutils literal"><span class="pre">__init()</span></tt>
 function.</p>
@@ -123,7 +122,7 @@ when we instantiate a Lua class.</p>
     <span class="p">}</span>
 <span class="p">};</span>
 
-<span class="p">...</span>
+<span class="c1">// ...</span>
 
 <span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
 <span class="p">[</span>
@@ -187,14 +186,15 @@ wrong overload will be called by <tt class="docutils literal"><span class="pre">
 <p class="first admonition-title">Note</p>
 <p>You can also override virtual member functions per instance which often
 makes it unnecessary to derive a new class in Lua. Instead of e.g.</p>
-<div class="highlight-c++"><pre>class "D" (B)
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">class</span> <span class="s2">&quot;</span><span class="s">D&quot;</span> <span class="p">(</span><span class="n">B</span><span class="p">)</span>
 
-function D:__init() B.__init(self) end
-function D:virtual_function() ... end</pre>
+<span class="k">function</span> <span class="nf">D</span><span class="p">:</span><span class="n">__init</span><span class="p">()</span> <span class="n">B</span><span class="p">.</span><span class="n">__init</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="k">end</span>
+<span class="k">function</span> <span class="nf">D</span><span class="p">:</span><span class="n">virtual_function</span><span class="p">()</span> <span class="o">...</span> <span class="k">end</span>
+</pre></div>
 </div>
 <p>you may be able to get around with</p>
-<div class="last highlight-c++"><div class="highlight"><pre><span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
-<span class="n">function</span> <span class="n">b</span><span class="o">:</span><span class="n">virtual_function</span><span class="p">()</span> <span class="p">...</span> <span class="n">end</span>
+<div class="last highlight-lua"><div class="highlight"><pre><span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
+<span class="k">function</span> <span class="nf">b</span><span class="p">:</span><span class="n">virtual_function</span><span class="p">()</span> <span class="o">...</span> <span class="k">end</span>
 </pre></div>
 </div>
 </div>
@@ -215,10 +215,11 @@ inherits from <tt class="docutils literal"><span class="pre">wrap_base</span></t
 <span class="p">];</span>
 </pre></div>
 </div>
-<div class="highlight-c++"><pre>&gt; class 'B' (A)
-&gt; x = B()
-&gt; assert(x == f(x)) -- object identity is preserved when object is
-                    -- passed through C++</pre>
+<div class="highlight-lua"><div class="highlight"><pre><span class="o">&gt;</span> <span class="n">class</span> <span class="s1">&#39;</span><span class="s">B&#39;</span> <span class="p">(</span><span class="n">A</span><span class="p">)</span>
+<span class="o">&gt;</span> <span class="n">x</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
+<span class="o">&gt;</span> <span class="nb">assert</span><span class="p">(</span><span class="n">x</span> <span class="o">==</span> <span class="n">f</span><span class="p">(</span><span class="n">x</span><span class="p">))</span> <span class="c1">-- object identity is preserved when object is</span>
+                    <span class="c1">-- passed through C++</span>
+</pre></div>
 </div>
 <p>This functionality relies on RTTI being enabled (that <tt class="docutils literal"><span class="pre">LUABIND_NO_RTTI</span></tt> is
 not defined).</p>
@@ -251,37 +252,39 @@ regarding binary operators. You are not guaranteed that the self pointer you
 get actually refers to an instance of your class. This is because Lua doesn&#8217;t
 distinguish the two cases where you get the other operand as left hand value or
 right hand value. Consider the following examples:</p>
-<div class="highlight-c++"><pre>class 'my_class'
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">class</span> <span class="s1">&#39;</span><span class="s">my_class&#39;</span>
 
-  function my_class:__init(v)
-      self.val = v
-  end
+  <span class="k">function</span> <span class="nf">my_class</span><span class="p">:</span><span class="n">__init</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+      <span class="n">self</span><span class="p">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">v</span>
+  <span class="k">end</span>
 
-  function my_class:__sub(v)
-      return my_class(self.val - v.val)
-  end
+  <span class="k">function</span> <span class="nf">my_class</span><span class="p">:</span><span class="n">__sub</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+      <span class="k">return</span> <span class="n">my_class</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">val</span> <span class="o">-</span> <span class="n">v</span><span class="p">.</span><span class="n">val</span><span class="p">)</span>
+  <span class="k">end</span>
 
-  function my_class:__tostring()
-      return self.val
-  end</pre>
+  <span class="k">function</span> <span class="nf">my_class</span><span class="p">:</span><span class="n">__tostring</span><span class="p">()</span>
+      <span class="k">return</span> <span class="n">self</span><span class="p">.</span><span class="n">val</span>
+  <span class="k">end</span>
+</pre></div>
 </div>
 <p>This will work well as long as you only subtracts instances of my_class with
 each other. But If you want to be able to subtract ordinary numbers from your
 class too, you have to manually check the type of both operands, including the
 self object.</p>
-<div class="highlight-c++"><pre>function my_class:__sub(v)
-    if (type(self) == 'number') then
-        return my_class(self - v.val)
+<div class="highlight-lua"><div class="highlight"><pre><span class="k">function</span> <span class="nf">my_class</span><span class="p">:</span><span class="n">__sub</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">self</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">number&#39;</span><span class="p">)</span> <span class="k">then</span>
+        <span class="k">return</span> <span class="n">my_class</span><span class="p">(</span><span class="n">self</span> <span class="o">-</span> <span class="n">v</span><span class="p">.</span><span class="n">val</span><span class="p">)</span>
 
-    elseif (type(v) == 'number') then
-        return my_class(self.val - v)
+    <span class="k">elseif</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;</span><span class="s">number&#39;</span><span class="p">)</span> <span class="k">then</span>
+        <span class="k">return</span> <span class="n">my_class</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">val</span> <span class="o">-</span> <span class="n">v</span><span class="p">)</span>
 
-    else
-        -- assume both operands are instances of my_class
-        return my_class(self.val - v.val)
+    <span class="k">else</span>
+        <span class="c1">-- assume both operands are instances of my_class</span>
+        <span class="k">return</span> <span class="n">my_class</span><span class="p">(</span><span class="n">self</span><span class="p">.</span><span class="n">val</span> <span class="o">-</span> <span class="n">v</span><span class="p">.</span><span class="n">val</span><span class="p">)</span>
 
-    end
-end</pre>
+    <span class="k">end</span>
+<span class="k">end</span>
+</pre></div>
 </div>
 <p>The reason why <tt class="docutils literal"><span class="pre">__sub</span></tt> is used as an example is because subtraction is not
 commutative (the order of the operands matters). That&#8217;s why luabind cannot
@@ -299,11 +302,11 @@ called.</p>
 <tt class="docutils literal"><span class="pre">__finalize</span></tt> function that can be overridden in lua-classes. The
 <tt class="docutils literal"><span class="pre">__finalize</span></tt> functions will be called on all classes in the inheritance
 chain, starting with the most derived type.</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="p">...</span>
+<div class="highlight-lua"><div class="highlight"><pre><span class="o">...</span>
 
-<span class="n">function</span> <span class="n">lua_testclass</span><span class="o">:</span><span class="n">__finalize</span><span class="p">()</span>
-    <span class="o">--</span> <span class="n">called</span> <span class="n">when</span> <span class="n">the</span> <span class="n">an</span> <span class="n">object</span> <span class="n">is</span> <span class="n">collected</span>
-<span class="n">end</span>
+<span class="k">function</span> <span class="nf">lua_testclass</span><span class="p">:</span><span class="n">__finalize</span><span class="p">()</span>
+    <span class="c1">-- called when the an object is collected</span>
+<span class="k">end</span>
 </pre></div>
 </div>
 </div>
@@ -316,14 +319,13 @@ separated from the C++ base part. This means that if you call virtual
 functions on that C++ object, they will not be dispatched to the lua
 class. It also means that if you adopt the object, the lua part will be
 garbage collected.</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="o">+--------------------+</span>
-<span class="o">|</span> <span class="n">C</span><span class="o">++</span> <span class="n">object</span>         <span class="o">|</span>    <span class="o">&lt;-</span> <span class="n">ownership</span> <span class="n">of</span> <span class="k">this</span> <span class="n">part</span> <span class="n">is</span> <span class="n">transferred</span>
-<span class="o">|</span>                    <span class="o">|</span>       <span class="n">to</span> <span class="n">c</span><span class="o">++</span> <span class="n">when</span> <span class="n">adopted</span>
-<span class="o">+--------------------+</span>
-<span class="o">|</span> <span class="n">lua</span> <span class="k">class</span> <span class="nc">instance</span> <span class="o">|</span>    <span class="o">&lt;-</span> <span class="k">this</span> <span class="n">part</span> <span class="n">is</span> <span class="n">garbage</span> <span class="n">collected</span> <span class="n">when</span>
-<span class="o">|</span> <span class="n">and</span> <span class="n">lua</span> <span class="n">members</span>    <span class="o">|</span>       <span class="n">instance</span> <span class="n">is</span> <span class="n">adopted</span><span class="p">,</span> <span class="n">since</span> <span class="n">it</span> <span class="n">cannot</span>
-<span class="o">+--------------------+</span>       <span class="n">be</span> <span class="n">held</span> <span class="n">by</span> <span class="n">c</span><span class="o">++</span><span class="p">.</span>
-</pre></div>
+<div class="highlight-lua"><pre>+--------------------+
+| C++ object         |    &lt;- ownership of this part is transferred
+|                    |       to c++ when adopted
++--------------------+
+| lua class instance |    &lt;- this part is garbage collected when
+| and lua members    |       instance is adopted, since it cannot
++--------------------+       be held by c++.</pre>
 </div>
 <p>The problem can be illustrated by this example:</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span> <span class="p">{};</span>
@@ -343,7 +345,7 @@ garbage collected.</p>
 </pre></div>
 </div>
 <p>In lua:</p>
-<div class="highlight-c++"><div class="highlight"><pre><span class="n">a</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
+<div class="highlight-lua"><div class="highlight"><pre><span class="n">a</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
 <span class="n">b</span> <span class="o">=</span> <span class="n">filter_a</span><span class="p">(</span><span class="n">a</span><span class="p">)</span>
 <span class="n">adopt_a</span><span class="p">(</span><span class="n">b</span><span class="p">)</span>
 </pre></div>
@@ -404,11 +406,8 @@ an object not owned by lua is being adopted to C++.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="genindex.html" title="General Index"
-             >index</a></li>
-        <li class="right" >
           <a href="exceptions.html" title="Exceptions"
-             >next</a> |</li>
+             >next</a></li>
         <li class="right" >
           <a href="object.html" title="Object"
              >previous</a> |</li>
