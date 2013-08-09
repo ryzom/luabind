@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Adding converters for user defined types &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Object" href="object.html" />
+    <link rel="prev" title="Binding classes to Lua" href="classes.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="object.html" title="Object"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="classes.html" title="Binding classes to Lua"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="adding-converters-for-user-defined-types">
+<h1>Adding converters for user defined types<a class="headerlink" href="#adding-converters-for-user-defined-types" title="Permalink to this headline">¶</a></h1>
+<p>It is possible to get luabind to handle user defined types like it does
+the built in types by specializing <tt class="docutils literal"><span class="pre">luabind::default_converter&lt;&gt;</span></tt>:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">int_wrapper</span>
+<span class="p">{</span>
+    <span class="n">int_wrapper</span><span class="p">(</span><span class="kt">int</span> <span class="n">value</span><span class="p">)</span>
+      <span class="o">:</span> <span class="n">value</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+    <span class="p">{}</span>
+
+    <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">namespace</span> <span class="n">luabind</span>
+<span class="p">{</span>
+    <span class="k">template</span> <span class="o">&lt;&gt;</span>
+    <span class="k">struct</span> <span class="n">default_converter</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span>
+      <span class="o">:</span> <span class="n">native_converter_base</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span>
+    <span class="p">{</span>
+        <span class="k">static</span> <span class="kt">int</span> <span class="n">compute_score</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="kt">int</span> <span class="n">index</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">lua_type</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">index</span><span class="p">)</span> <span class="o">==</span> <span class="n">LUA_TNUMBER</span> <span class="o">?</span> <span class="mi">0</span> <span class="o">:</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+        <span class="p">}</span>
+
+        <span class="n">X</span> <span class="n">from</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="kt">int</span> <span class="n">index</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">return</span> <span class="n">X</span><span class="p">(</span><span class="n">lua_tonumber</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">index</span><span class="p">));</span>
+        <span class="p">}</span>
+
+        <span class="kt">void</span> <span class="n">to</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="n">X</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">lua_pushnumber</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">x</span><span class="p">.</span><span class="n">value</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">};</span>
+
+    <span class="k">template</span> <span class="o">&lt;&gt;</span>
+    <span class="k">struct</span> <span class="n">default_converter</span><span class="o">&lt;</span><span class="n">X</span> <span class="k">const</span><span class="o">&amp;&gt;</span>
+      <span class="o">:</span> <span class="n">default_converter</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span>
+    <span class="p">{};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Note that <tt class="docutils literal"><span class="pre">default_converter&lt;&gt;</span></tt> is instantiated for the actual argument and
+return types of the bound functions. In the above example, we add a
+specialization for <tt class="docutils literal"><span class="pre">X</span> <span class="pre">const&amp;</span></tt> that simply forwards to the <tt class="docutils literal"><span class="pre">X</span></tt> converter.
+This lets us export functions which accept <tt class="docutils literal"><span class="pre">X</span></tt> by const reference.</p>
+<p><tt class="docutils literal"><span class="pre">native_converter_base&lt;&gt;</span></tt> should be used as the base class for the
+specialized converters. It simplifies the converter interface, and
+provides a mean for backward compatibility since the underlying
+interface is in flux.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="classes.html"
+                        title="previous chapter">Binding classes to Lua</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="object.html"
+                        title="next chapter">Object</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="object.html" title="Object"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="classes.html" title="Binding classes to Lua"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

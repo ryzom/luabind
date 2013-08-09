@@ -1,0 +1,277 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Error Handling &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Build options" href="build-options.html" />
+    <link rel="prev" title="Splitting up the registration" href="split-registration.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="build-options.html" title="Build options"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="split-registration.html" title="Splitting up the registration"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="error-handling">
+<h1>Error Handling<a class="headerlink" href="#error-handling" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="pcall-errorfunc">
+<span id="sec-pcall-errorfunc"></span><h2>pcall errorfunc<a class="headerlink" href="#pcall-errorfunc" title="Permalink to this headline">¶</a></h2>
+<p>As mentioned in the <a class="reference external" href="http://www.lua.org/manual/5.0/manual.html">Lua documentation</a>, it is possible to pass an
+error handler function to <tt class="docutils literal"><span class="pre">lua_pcall()</span></tt>. Luabind makes use of
+<tt class="docutils literal"><span class="pre">lua_pcall()</span></tt> internally when calling member functions and free functions.
+It is possible to set the error handler function that Luabind will use
+globally:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">typedef</span> <span class="nf">int</span><span class="p">(</span><span class="o">*</span><span class="n">pcall_callback_fun</span><span class="p">)(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">set_pcall_callback</span><span class="p">(</span><span class="n">pcall_callback_fun</span> <span class="n">fn</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This is primarily useful for adding more information to the error message
+returned by a failed protected call. For more information on how to use the
+pcall_callback function, see <tt class="docutils literal"><span class="pre">errfunc</span></tt> under the
+<a class="reference external" href="http://www.lua.org/manual/5.0/manual.html#3.15">pcall section of the lua manual</a>.</p>
+<p>For more information on how to retrieve debugging information from lua, see
+<a class="reference external" href="http://www.lua.org/manual/5.0/manual.html#4">the debug section of the lua manual</a>.</p>
+<p>The message returned by the <tt class="docutils literal"><span class="pre">pcall_callback</span></tt> is accessable as the top lua
+value on the stack. For example, if you would like to access it as a luabind
+object, you could do like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">catch</span><span class="p">(</span><span class="n">error</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">object</span> <span class="n">error_msg</span><span class="p">(</span><span class="n">from_stack</span><span class="p">(</span><span class="n">e</span><span class="p">.</span><span class="n">state</span><span class="p">(),</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">error_msg</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="file-and-line-numbers">
+<h2>file and line numbers<a class="headerlink" href="#file-and-line-numbers" title="Permalink to this headline">¶</a></h2>
+<p>If you want to add file name and line number to the error messages generated
+by luabind you can define your own <a class="reference internal" href="#pcall-errorfunc">pcall errorfunc</a>. You may want to modify
+this callback to better suit your needs, but the basic functionality could be
+implemented like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">add_file_and_line</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">)</span>
+<span class="p">{</span>
+   <span class="n">lua_Debug</span> <span class="n">d</span><span class="p">;</span>
+   <span class="n">lua_getstack</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">d</span><span class="p">);</span>
+   <span class="n">lua_getinfo</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="s">&quot;Sln&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">d</span><span class="p">);</span>
+   <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">err</span> <span class="o">=</span> <span class="n">lua_tostring</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+   <span class="n">lua_pop</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="mi">1</span><span class="p">);</span>
+   <span class="n">std</span><span class="o">::</span><span class="n">stringstream</span> <span class="n">msg</span><span class="p">;</span>
+   <span class="n">msg</span> <span class="o">&lt;&lt;</span> <span class="n">d</span><span class="p">.</span><span class="n">short_src</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;:&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">d</span><span class="p">.</span><span class="n">currentline</span><span class="p">;</span>
+
+   <span class="k">if</span> <span class="p">(</span><span class="n">d</span><span class="p">.</span><span class="n">name</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">)</span>
+   <span class="p">{</span>
+      <span class="n">msg</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;(&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">d</span><span class="p">.</span><span class="n">namewhat</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">d</span><span class="p">.</span><span class="n">name</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;)&quot;</span><span class="p">;</span>
+   <span class="p">}</span>
+   <span class="n">msg</span> <span class="o">&lt;&lt;</span> <span class="s">&quot; &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">err</span><span class="p">;</span>
+   <span class="n">lua_pushstring</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="n">msg</span><span class="p">.</span><span class="n">str</span><span class="p">().</span><span class="n">c_str</span><span class="p">());</span>
+   <span class="k">return</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>For more information about what kind of information you can add to the error
+message, see <a class="reference external" href="http://www.lua.org/manual/5.0/manual.html#4">the debug section of the lua manual</a>.</p>
+<p>Note that the callback set by <tt class="docutils literal"><span class="pre">set_pcall_callback()</span></tt> will only be used when
+luabind executes lua code. Anytime when you call <tt class="docutils literal"><span class="pre">lua_pcall</span></tt> yourself, you
+have to supply your function if you want error messages translated.</p>
+</div>
+<div class="section" id="lua-panic">
+<span id="sec-lua-panic"></span><h2>lua panic<a class="headerlink" href="#lua-panic" title="Permalink to this headline">¶</a></h2>
+<p>When lua encounters a fatal error caused by a bug from the C/C++ side, it will
+call its internal panic function. This can happen, for example,  when you call
+<tt class="docutils literal"><span class="pre">lua_gettable</span></tt> on a value that isn&#8217;t a table. If you do the same thing from
+within lua, it will of course just fail with an error message.</p>
+<p>The default panic function will <tt class="docutils literal"><span class="pre">exit()</span></tt> the application. If you want to
+handle this case without terminating your application, you can define your own
+panic function using <tt class="docutils literal"><span class="pre">lua_atpanic</span></tt>. The best way to continue from the panic
+function is to make sure lua is compiled as C++ and throw an exception from
+the panic function. Throwing an exception instead of using <tt class="docutils literal"><span class="pre">setjmp</span></tt> and
+<tt class="docutils literal"><span class="pre">longjmp</span></tt> will make sure the stack is correctly unwound.</p>
+<p>When the panic function is called, the lua state is invalid, and the only
+allowed operation on it is to close it.</p>
+<p>For more information, see the <a class="reference external" href="http://www.lua.org/manual/5.0/manual.html#3.19">lua manual section 3.19</a>.</p>
+</div>
+<div class="section" id="structured-exceptions-msvc">
+<h2>structured exceptions (MSVC)<a class="headerlink" href="#structured-exceptions-msvc" title="Permalink to this headline">¶</a></h2>
+<p>Since lua is generally built as a C library, any callbacks called from lua
+cannot under any circumstance throw an exception. Because of that, luabind has
+to catch all exceptions and translate them into proper lua errors (by calling
+<tt class="docutils literal"><span class="pre">lua_error()</span></tt>). This means we have a <tt class="docutils literal"><span class="pre">catch(...)</span> <span class="pre">{}</span></tt> in there.</p>
+<p>In Visual Studio, <tt class="docutils literal"><span class="pre">catch</span> <span class="pre">(...)</span></tt> will not only catch C++ exceptions, it will
+also catch structured exceptions, such as segmentation fault. This means that if
+your function, that gets called from luabind, makes an invalid memory
+adressing, you won&#8217;t notice it. All that will happen is that lua will return
+an error message saying &#8220;unknown exception&#8221;.</p>
+<p>To remedy this, you can create your own <em>exception translator</em>:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">straight_to_debugger</span><span class="p">(</span><span class="kt">unsigned</span> <span class="kt">int</span><span class="p">,</span> <span class="n">_EXCEPTION_POINTERS</span><span class="o">*</span><span class="p">)</span>
+<span class="p">{</span> <span class="k">throw</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="cp">#ifdef _MSC_VER</span>
+   <span class="o">::</span><span class="n">_set_se_translator</span><span class="p">(</span><span class="n">straight_to_debugger</span><span class="p">);</span>
+<span class="cp">#endif</span>
+</pre></div>
+</div>
+<p>This will make structured exceptions, like segmentation fault, to actually get
+caught by the debugger.</p>
+</div>
+<div class="section" id="error-messages">
+<h2>Error messages<a class="headerlink" href="#error-messages" title="Permalink to this headline">¶</a></h2>
+<p>These are the error messages that can be generated by luabind, with a more
+in-depth explanation.</p>
+<ul>
+<li><pre class="first literal-block">
+the attribute '<em>class-name.attribute-name</em>' is read only
+</pre>
+<p>There is no data member named <em>attribute-name</em> in the class <em>class-name</em>,
+or there&#8217;s no setter-function registered on that property name. See the
+<a class="reference internal" href="classes.html#sec-properties"><em>Properties</em></a> section.</p>
+</li>
+<li><pre class="first literal-block">
+the attribute '<em>class-name.attribute-name</em>' is of type: (<em>class-name</em>) and does not match (<em>class_name</em>)
+</pre>
+<p>This error is generated if you try to assign an attribute with a value
+of a type that cannot be converted to the attributes type.</p>
+</li>
+<li><pre class="first literal-block">
+<em>class-name()</em> threw an exception, <em>class-name:function-name()</em> threw an exception
+</pre>
+<p>The class&#8217; constructor or member function threw an unknown exception.
+Known exceptions are const char*, std::exception. See the
+<a class="reference internal" href="exceptions.html#part-exceptions"><em>Exceptions</em></a> section.</p>
+</li>
+<li><pre class="first literal-block">
+no overload of '<em>class-name:function-name</em>' matched the arguments (<em>parameter-types</em>)
+no match for function call '<em>function-name</em>' with the parameters (<em>parameter-types</em>)
+no constructor of <em>class-name</em> matched the arguments (<em>parameter-types</em>)
+no operator <em>operator-name</em> matched the arguments (<em>parameter-types</em>)
+</pre>
+<p>No function/operator with the given name takes the parameters you gave
+it. You have either misspelled the function name, or given it incorrect
+parameters. This error is followed by a list of possible candidate
+functions to help you figure out what parameter has the wrong type. If
+the candidate list is empty there&#8217;s no function at all with that name.
+See the signature matching section.</p>
+</li>
+<li><pre class="first literal-block">
+call of overloaded '<em>class-name:function-name*(*parameter-types</em>)' is ambiguous
+ambiguous match for function call '<em>function-name</em>' with the parameters (<em>parameter-types</em>)
+call of overloaded constructor '<em>class-name*(*parameter-types</em>)' is ambiguous
+call of overloaded operator <em>operator-name</em> (<em>parameter-types</em>) is ambiguous
+</pre>
+<p>This means that the function/operator you are trying to call has at least
+one other overload that matches the arguments just as good as the first
+overload.</p>
+</li>
+<li><pre class="first literal-block">
+cannot derive from C++ class '<em>class-name</em>'. It does not have a wrapped type.
+</pre>
+</li>
+</ul>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Error Handling</a><ul>
+<li><a class="reference internal" href="#pcall-errorfunc">pcall errorfunc</a></li>
+<li><a class="reference internal" href="#file-and-line-numbers">file and line numbers</a></li>
+<li><a class="reference internal" href="#lua-panic">lua panic</a></li>
+<li><a class="reference internal" href="#structured-exceptions-msvc">structured exceptions (MSVC)</a></li>
+<li><a class="reference internal" href="#error-messages">Error messages</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="split-registration.html"
+                        title="previous chapter">Splitting up the registration</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="build-options.html"
+                        title="next chapter">Build options</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="build-options.html" title="Build options"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="split-registration.html" title="Splitting up the registration"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

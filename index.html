@@ -1,0 +1,207 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Luabind’s documentation! &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="#" />
+    <link rel="next" title="luabind 0.9" href="intro.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="intro.html" title="luabind 0.9"
+             accesskey="N">next</a> |</li>
+        <li><a href="#">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="welcome-to-luabind-s-documentation">
+<h1>Welcome to Luabind&#8217;s documentation!<a class="headerlink" href="#welcome-to-luabind-s-documentation" title="Permalink to this headline">¶</a></h1>
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="intro.html">luabind 0.9</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#features">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="intro.html#portability">Portability</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="building.html">Building luabind</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="building.html#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html#windows">Windows</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html#linux-and-other-nix-flavors">Linux and other *nix flavors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="building.html#building-and-testing">Building and testing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="basic-usage.html">Basic usage</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="basic-usage.html#hello-world">Hello world</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="scopes.html">Scopes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="functions.html">Binding functions to Lua</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#overloaded-functions">Overloaded functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#signature-matching">Signature matching</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#calling-lua-functions">Calling Lua functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#using-lua-threads">Using Lua threads</a></li>
+<li class="toctree-l2"><a class="reference internal" href="functions.html#binding-function-objects-with-explicit-signatures">Binding function objects with explicit signatures</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="classes.html">Binding classes to Lua</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#overloaded-member-functions">Overloaded member functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#properties">Properties</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#enums">Enums</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#operators">Operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#nested-scopes-and-static-functions">Nested scopes and static functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#derived-classes">Derived classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#smart-pointers">Smart pointers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="classes.html#splitting-class-registrations">Splitting class registrations</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="userdefined-converters.html">Adding converters for user defined types</a></li>
+<li class="toctree-l1"><a class="reference internal" href="object.html">Object</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="object.html#iterators">Iterators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="object.html#related-functions">Related functions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="object.html#assigning-nil">Assigning nil</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="lua-classes.html">Defining classes in Lua</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="lua-classes.html#deriving-in-lua">Deriving in lua</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua-classes.html#overloading-operators">Overloading operators</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua-classes.html#finalizers">Finalizers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="lua-classes.html#slicing">Slicing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="exceptions.html">Exceptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="policies.html">Policies</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#adopt">adopt</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#dependency">dependency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#out-value">out_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#pure-out-value">pure_out_value</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#return-reference-to">return_reference_to</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#copy">copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#discard-result">discard_result</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#return-stl-iterator">return_stl_iterator</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#raw">raw</a></li>
+<li class="toctree-l2"><a class="reference internal" href="policies.html#yield">yield</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="split-registration.html">Splitting up the registration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="errors.html">Error Handling</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="errors.html#pcall-errorfunc">pcall errorfunc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html#file-and-line-numbers">file and line numbers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html#lua-panic">lua panic</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html#structured-exceptions-msvc">structured exceptions (MSVC)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="errors.html#error-messages">Error messages</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="build-options.html">Build options</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="build-options.html#cmake-options">CMake options</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="impl-notes.html">Implementation notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="impl-notes.html#the-detail-namespace-and-undocumented-features">The detail namespace and undocumented features</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="faq.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issues.html">Known issues</a></li>
+<li class="toctree-l1"><a class="reference internal" href="acknowledgments.html">Acknowledgments</a></li>
+</ul>
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><em>Index</em></a></li>
+<li><a class="reference internal" href="search.html"><em>Search Page</em></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Luabind&#8217;s documentation!</a><ul>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="next chapter">luabind 0.9</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="intro.html" title="luabind 0.9"
+             >next</a> |</li>
+        <li><a href="#">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

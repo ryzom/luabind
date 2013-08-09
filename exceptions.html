@@ -1,0 +1,221 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Exceptions &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Policies" href="policies.html" />
+    <link rel="prev" title="Defining classes in Lua" href="lua-classes.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="policies.html" title="Policies"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="lua-classes.html" title="Defining classes in Lua"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="exceptions">
+<span id="part-exceptions"></span><h1>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h1>
+<p>If any of the functions you register throws an exception when called, that
+exception will be caught by luabind and converted to an error string and
+<tt class="docutils literal"><span class="pre">lua_error()</span></tt> will be invoked. If the exception is a <tt class="docutils literal"><span class="pre">std::exception</span></tt> or a
+<tt class="docutils literal"><span class="pre">const</span> <span class="pre">char*</span></tt> the string that is pushed on the Lua stack, as error message,
+will be the string returned by <tt class="docutils literal"><span class="pre">std::exception::what()</span></tt> or the string itself
+respectively. If the exception is unknown, a generic string saying that the
+function threw an exception will be pushed.</p>
+<p>If you have an exception type that isn&#8217;t derived from
+<tt class="docutils literal"><span class="pre">std::exception</span></tt>, or you wish to change the error message from the
+default result of <tt class="docutils literal"><span class="pre">what()</span></tt>, it is possible to register custom
+exception handlers:</p>
+<div class="highlight-c++"><pre>struct my_exception
+{};
+
+void translate_my_exception(lua_State* L, my_exception const&amp;)
+{
+    lua_pushstring(L, "my_exception");
+}
+
+…
+
+luabind::register_exception_handler&lt;my_exception&gt;(&amp;translate_my_exception);</pre>
+</div>
+<p><tt class="docutils literal"><span class="pre">translate_my_exception()</span></tt> will be called by luabind whenever a
+<tt class="docutils literal"><span class="pre">my_exception</span></tt> is caught. <tt class="docutils literal"><span class="pre">lua_error()</span></tt> will be called after the
+handler function returns, so it is expected that the function will push
+an error string on the stack.</p>
+<p>Any function that invokes Lua code may throw <tt class="docutils literal"><span class="pre">luabind::error</span></tt>. This exception
+means that a Lua run-time error occurred. The error message is found on top of
+the Lua stack. The reason why the exception doesn&#8217;t contain the error string
+itself is because it would then require heap allocation which may fail. If an
+exception class throws an exception while it is being thrown itself, the
+application will be terminated.</p>
+<p>Error&#8217;s synopsis is:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">class</span> <span class="nc">error</span> <span class="o">:</span> <span class="k">public</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">error</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">);</span>
+    <span class="n">lua_State</span><span class="o">*</span> <span class="nf">state</span><span class="p">()</span> <span class="k">const</span> <span class="k">throw</span><span class="p">();</span>
+    <span class="k">virtual</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">what</span><span class="p">()</span> <span class="k">const</span> <span class="k">throw</span><span class="p">();</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>The state function returns a pointer to the Lua state in which the error was
+thrown. This pointer may be invalid if you catch this exception after the lua
+state is destructed. If the Lua state is valid you can use it to retrieve the
+error message from the top of the Lua stack.</p>
+<p>An example of where the Lua state pointer may point to an invalid state
+follows:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">lua_state</span>
+<span class="p">{</span>
+    <span class="n">lua_state</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">)</span><span class="o">:</span> <span class="n">m_L</span><span class="p">(</span><span class="n">L</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="o">~</span><span class="n">lua_state</span><span class="p">()</span> <span class="p">{</span> <span class="n">lua_close</span><span class="p">(</span><span class="n">m_L</span><span class="p">);</span> <span class="p">}</span>
+    <span class="k">operator</span> <span class="n">lua_State</span><span class="o">*</span><span class="p">()</span> <span class="p">{</span> <span class="k">return</span> <span class="n">m_L</span><span class="p">;</span> <span class="p">}</span>
+    <span class="n">lua_State</span><span class="o">*</span> <span class="n">m_L</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">try</span>
+    <span class="p">{</span>
+        <span class="n">lua_state</span> <span class="n">L</span> <span class="o">=</span> <span class="n">luaL_newstate</span><span class="p">();</span>
+        <span class="cm">/* ... */</span>
+    <span class="p">}</span>
+    <span class="k">catch</span><span class="p">(</span><span class="n">luabind</span><span class="o">::</span><span class="n">error</span><span class="o">&amp;</span> <span class="n">e</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span> <span class="o">=</span> <span class="n">e</span><span class="p">.</span><span class="n">state</span><span class="p">();</span>
+        <span class="c1">// L will now point to the destructed</span>
+        <span class="c1">// Lua state and be invalid</span>
+        <span class="cm">/* ... */</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>There&#8217;s another exception that luabind may throw: <tt class="docutils literal"><span class="pre">luabind::cast_failed</span></tt>,
+this exception is thrown from <tt class="docutils literal"><span class="pre">call_function&lt;&gt;</span></tt> or <tt class="docutils literal"><span class="pre">call_member&lt;&gt;</span></tt>. It
+means that the return value from the Lua function couldn&#8217;t be converted to
+a C++ value. It is also thrown from <tt class="docutils literal"><span class="pre">object_cast&lt;&gt;</span></tt> if the cast cannot
+be made.</p>
+<p>The synopsis for <tt class="docutils literal"><span class="pre">luabind::cast_failed</span></tt> is:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">class</span> <span class="nc">cast_failed</span> <span class="o">:</span> <span class="k">public</span> <span class="n">std</span><span class="o">::</span><span class="n">exception</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">cast_failed</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">);</span>
+    <span class="n">lua_State</span><span class="o">*</span> <span class="nf">state</span><span class="p">()</span> <span class="k">const</span> <span class="k">throw</span><span class="p">();</span>
+    <span class="n">LUABIND_TYPE_INFO</span> <span class="nf">info</span><span class="p">()</span> <span class="k">const</span> <span class="k">throw</span><span class="p">();</span>
+    <span class="k">virtual</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="nf">what</span><span class="p">()</span> <span class="k">const</span> <span class="k">throw</span><span class="p">();</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Again, the state member function returns a pointer to the Lua state where the
+error occurred. See the example above to see where this pointer may be invalid.</p>
+<p>The info member function returns the user defined <tt class="docutils literal"><span class="pre">LUABIND_TYPE_INFO</span></tt>, which
+defaults to a <tt class="docutils literal"><span class="pre">const</span> <span class="pre">std::type_info*</span></tt>. This type info describes the type that
+we tried to cast a Lua value to.</p>
+<p>If you have defined <tt class="docutils literal"><span class="pre">LUABIND_NO_EXCEPTIONS</span></tt> none of these exceptions will be
+thrown, instead you can set two callback functions that are called instead.
+These two functions are only defined if <tt class="docutils literal"><span class="pre">LUABIND_NO_EXCEPTIONS</span></tt> are defined.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">luabind</span><span class="o">::</span><span class="n">set_error_callback</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The function you set will be called when a runtime-error occur in Lua code. You
+can find an error message on top of the Lua stack. This function is not
+expected to return, if it does luabind will call <tt class="docutils literal"><span class="pre">std::terminate()</span></tt>.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">luabind</span><span class="o">::</span><span class="n">set_cast_failed_callback</span><span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">,</span> <span class="n">LUABIND_TYPE_INFO</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The function you set is called instead of throwing <tt class="docutils literal"><span class="pre">cast_failed</span></tt>. This function
+is not expected to return, if it does luabind will call <tt class="docutils literal"><span class="pre">std::terminate()</span></tt>.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="lua-classes.html"
+                        title="previous chapter">Defining classes in Lua</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="policies.html"
+                        title="next chapter">Policies</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="policies.html" title="Policies"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="lua-classes.html" title="Defining classes in Lua"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

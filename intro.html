@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>luabind 0.9 &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Building luabind" href="building.html" />
+    <link rel="prev" title="Welcome to Luabind’s documentation!" href="index.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="building.html" title="Building luabind"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Luabind’s documentation!"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="luabind-version">
+<h1>luabind 0.9<a class="headerlink" href="#luabind-version" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Permalink to this headline">¶</a></h2>
+<p>Luabind is a library that helps you create bindings between C++ and Lua. It has
+the ability to expose functions and classes, written in C++, to Lua. It will
+also supply the functionality to define classes in Lua and let them derive from
+other Lua classes or C++ classes. Lua classes can override virtual functions
+from their C++ base classes. It is written towards Lua 5.0, and does not work
+with Lua 4.</p>
+<p>It is implemented utilizing template meta programming. That means that you
+don&#8217;t need an extra preprocess pass to compile your project (it is done by the
+compiler). It also means you don&#8217;t (usually) have to know the exact signature
+of each function you register, since the library will generate code depending
+on the compile-time type of the function (which includes the signature). The
+main drawback of this approach is that the compilation time will increase for
+the file that does the registration, it is therefore recommended that you
+register everything in the same cpp-file.</p>
+<p>Luabind is released under the terms of the <a class="reference external" href="http://www.opensource.org/licenses/mit-license.php">MIT license</a>.</p>
+<p>We are very interested in hearing about projects that use luabind, please let
+us know about your project.</p>
+<p>The main channel for help and feedback is the <a class="reference external" href="https://lists.sourceforge.net/lists/listinfo/luabind-user">luabind mailing list</a>.
+There&#8217;s also an IRC channel <tt class="docutils literal"><span class="pre">#luabind</span></tt> on irc.freenode.net.</p>
+<p>Additionally, this fork’s <a class="reference external" href="https://github.com/Oberon00/luabind/issues">github issue tracker</a> can also be used for bug reports, feature requests and questions.</p>
+</div>
+<div class="section" id="features">
+<h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
+<p>Luabind supports:</p>
+<blockquote>
+<div><ul class="simple">
+<li>Overloaded free functions</li>
+<li>C++ classes in Lua</li>
+<li>Overloaded member functions</li>
+<li>Operators</li>
+<li>Properties</li>
+<li>Enums (also C++11 <tt class="docutils literal"><span class="pre">enum</span> <span class="pre">class</span></tt> if available)</li>
+<li>Lua functions in C++</li>
+<li>Lua classes in C++</li>
+<li>Lua classes (single inheritance)</li>
+<li>Derives from Lua or C++ classes</li>
+<li>Override virtual functions from C++ classes</li>
+<li>Implicit casts between registered types</li>
+<li>Best match signature matching</li>
+<li>Return value policies and parameter policies</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="portability">
+<h2>Portability<a class="headerlink" href="#portability" title="Permalink to this headline">¶</a></h2>
+<p>Luabind is currently tested regularly with</p>
+<blockquote>
+<div><ul class="simple">
+<li>Microsoft Visual C++ 11 (2012) x32 and x64</li>
+<li>gcc 4.8 x64 (with and without -std=c++11)</li>
+<li>Clang 2.6 x64 (with and without -std=c++11)</li>
+</ul>
+</div></blockquote>
+<p>It should work with any compiler conformant with C++03. However, probably only
+versions of the above threecompilers will work out of the box with the
+provided CMake build files. Please report any issues you have to the
+<a class="reference external" href="https://github.com/Oberon00/luabind/issues">github issue tracker</a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">luabind 0.9</a><ul>
+<li><a class="reference internal" href="#introduction">Introduction</a></li>
+<li><a class="reference internal" href="#features">Features</a></li>
+<li><a class="reference internal" href="#portability">Portability</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">Welcome to Luabind&#8217;s documentation!</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="building.html"
+                        title="next chapter">Building luabind</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="building.html" title="Building luabind"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="Welcome to Luabind’s documentation!"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

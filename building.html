@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Building luabind &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Basic usage" href="basic-usage.html" />
+    <link rel="prev" title="luabind 0.9" href="intro.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="basic-usage.html" title="Basic usage"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="luabind 0.9"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="building-luabind">
+<h1>Building luabind<a class="headerlink" href="#building-luabind" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Permalink to this headline">¶</a></h2>
+<p>Apart from Lua 5.1 or (recommended) 5.2, Luabind depends on a number of Boost
+libraries. It also depends on <a class="reference external" href="http://www.cmake.org/">CMake</a> to build the library and run the tests.</p>
+</div>
+<div class="section" id="windows">
+<h2>Windows<a class="headerlink" href="#windows" title="Permalink to this headline">¶</a></h2>
+<p>If CMake has problems finding Lua, LUA_DIR needs to be set to point to a
+directory containing the Lua include directory and built libraries.</p>
+<p>The same applies to Boost and the BOOST_ROOT environment variable.</p>
+</div>
+<div class="section" id="linux-and-other-nix-flavors">
+<h2>Linux and other *nix flavors<a class="headerlink" href="#linux-and-other-nix-flavors" title="Permalink to this headline">¶</a></h2>
+<p>If your system already has Lua installed, it is very likely that the
+build system will automatically find it and just work. If you have
+Lua installed in a non-standard location, you may need to set
+<tt class="docutils literal"><span class="pre">LUA_DIR</span></tt> to point to the installation prefix.</p>
+<p><tt class="docutils literal"><span class="pre">BOOST_ROOT</span></tt> can be set to a Boost installation directory. If left
+unset, the build system will try to use boost headers from the standard
+include path.</p>
+</div>
+<div class="section" id="building-and-testing">
+<h2>Building and testing<a class="headerlink" href="#building-and-testing" title="Permalink to this headline">¶</a></h2>
+<p>Building the default variant of the library, which is a static release
+library, is simply done by invoking cmake in the luabind root directory and
+then running your native build tools on the generated files (e.g. make on Unix
+or nmake/msbuild ALL_BUILD.vcxproj for MSVC).</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">To build your application against the shared library variant,
+LUABIND_DYNAMIC_LINK needs to be defined to properly import symbols.</p>
+</div>
+<p>To run the unit tests, invoke your build tool with the test target, e.g.
+<tt class="docutils literal"><span class="pre">make</span> <span class="pre">test</span></tt> on Unix or <tt class="docutils literal"><span class="pre">nmake</span> <span class="pre">test/msbuild</span> <span class="pre">RUN_TESTS.vcxproj</span></tt> for MSVC.
+This run the (previously built) unit tests in the current variant. A clean
+test run output should end with something like:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="mi">100</span><span class="o">%</span> <span class="n">tests</span> <span class="n">passed</span><span class="p">,</span> <span class="mi">0</span> <span class="n">tests</span> <span class="n">failed</span> <span class="n">out</span> <span class="n">of</span> <span class="mi">51</span>
+<span class="n">Total</span> <span class="n">Test</span> <span class="n">time</span> <span class="p">(</span><span class="n">real</span><span class="p">)</span> <span class="o">=</span>   <span class="mf">1.23</span> <span class="n">sec</span>
+</pre></div>
+</div>
+<p>A failed run would end with something like:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="mi">98</span><span class="o">%</span> <span class="n">tests</span> <span class="n">passed</span><span class="p">,</span> <span class="mi">1</span> <span class="n">tests</span> <span class="n">failed</span> <span class="n">out</span> <span class="n">of</span> <span class="mi">51</span>
+
+<span class="n">Total</span> <span class="n">Test</span> <span class="n">time</span> <span class="p">(</span><span class="n">real</span><span class="p">)</span> <span class="o">=</span>   <span class="mf">1.23</span> <span class="n">sec</span>
+
+<span class="n">The</span> <span class="n">following</span> <span class="n">tests</span> <span class="n">FAILED</span><span class="o">:</span>
+    <span class="mi">1</span> <span class="o">-</span> <span class="n">abstract_base</span> <span class="p">(</span><span class="n">Failed</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Building luabind</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li><a class="reference internal" href="#windows">Windows</a></li>
+<li><a class="reference internal" href="#linux-and-other-nix-flavors">Linux and other *nix flavors</a></li>
+<li><a class="reference internal" href="#building-and-testing">Building and testing</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="intro.html"
+                        title="previous chapter">luabind 0.9</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="basic-usage.html"
+                        title="next chapter">Basic usage</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="basic-usage.html" title="Basic usage"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="intro.html" title="luabind 0.9"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

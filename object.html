@@ -1,0 +1,397 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Object &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Defining classes in Lua" href="lua-classes.html" />
+    <link rel="prev" title="Adding converters for user defined types" href="userdefined-converters.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="lua-classes.html" title="Defining classes in Lua"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="userdefined-converters.html" title="Adding converters for user defined types"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="object">
+<span id="part-object"></span><h1>Object<a class="headerlink" href="#object" title="Permalink to this headline">¶</a></h1>
+<p>Since functions have to be able to take Lua values (of variable type) we need a
+wrapper around them. This wrapper is called <tt class="docutils literal"><span class="pre">luabind::object</span></tt>. If the
+function you register takes an object, it will match any Lua value. To use it,
+you need to include <tt class="docutils literal"><span class="pre">&lt;luabind/object.hpp&gt;</span></tt>.</p>
+<div class="topic">
+<p class="topic-title first">Synopsis</p>
+<pre class="literal-block">
+class object
+{
+public:
+    template&lt;class T&gt;
+    object(lua_State*, T const&amp; value);
+    object(from_stack const&amp;);
+    object(object const&amp;);
+    object();
+
+    ~object();
+
+    lua_State* interpreter() const;
+    void push() const;
+    bool is_valid() const;
+    operator <em>safe_bool_type</em> () const;
+
+    template&lt;class Key&gt;
+    <em>implementation-defined</em> operator[](Key const&amp;);
+
+    template&lt;class T&gt;
+    object&amp; operator=(T const&amp;);
+    object&amp; operator=(object const&amp;);
+
+    bool operator==(object const&amp;) const;
+    bool operator&lt;(object const&amp;) const;
+    bool operator&lt;=(object const&amp;) const;
+    bool operator&gt;(object const&amp;) const;
+    bool operator&gt;=(object const&amp;) const;
+    bool operator!=(object const&amp;) const;
+
+    template &lt;class T&gt;
+    <em>implementation-defined</em> operator[](T const&amp; key) const
+
+    void swap(object&amp;);
+
+    <em>implementation-defined</em> operator()();
+
+    template&lt;class A0&gt;
+    <em>implementation-defined</em> operator()(A0 const&amp; a0);
+
+    template&lt;class A0, class A1&gt;
+    <em>implementation-defined</em> operator()(A0 const&amp; a0, A1 const&amp; a1);
+
+    /* ... */
+};
+</pre>
+</div>
+<p>When you have a Lua object, you can assign it a new value with the assignment
+operator (=). When you do this, the <tt class="docutils literal"><span class="pre">default_policy</span></tt> will be used to make the
+conversion from C++ value to Lua. If your <tt class="docutils literal"><span class="pre">luabind::object</span></tt> is a table you
+can access its members through the operator[] or the <a class="reference internal" href="#iterators">Iterators</a>. The value
+returned from the operator[] is a proxy object that can be used both for
+reading and writing values into the table (using operator=).</p>
+<p>Note that it is impossible to know if a Lua value is indexable or not
+(<tt class="docutils literal"><span class="pre">lua_gettable</span></tt> doesn&#8217;t fail, it succeeds or crashes). This means that if
+you&#8217;re trying to index something that cannot be indexed, you&#8217;re on your own.
+Lua will call its <tt class="docutils literal"><span class="pre">panic()</span></tt> function. See <a class="reference internal" href="errors.html#sec-lua-panic"><em>lua panic</em></a>.</p>
+<p>There are also free functions that can be used for indexing the table, see
+<a class="reference internal" href="#related-functions">Related functions</a>.</p>
+<p>The constructor that takes a <tt class="docutils literal"><span class="pre">from_stack</span></tt> object is used when you want to
+initialize the object with a value from the lua stack. The <tt class="docutils literal"><span class="pre">from_stack</span></tt>
+type has the following constructor:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">from_stack</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="kt">int</span> <span class="n">index</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The index is an ordinary lua stack index, negative values are indexed from the
+top of the stack. You use it like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">object</span> <span class="nf">o</span><span class="p">(</span><span class="n">from_stack</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>This will create the object <tt class="docutils literal"><span class="pre">o</span></tt> and copy the value from the top of the lua stack.</p>
+<p>The <tt class="docutils literal"><span class="pre">interpreter()</span></tt> function returns the Lua state where this object is stored.
+If you want to manipulate the object with Lua functions directly you can push
+it onto the Lua stack by calling <tt class="docutils literal"><span class="pre">push()</span></tt>.</p>
+<p>The operator== will call lua_compare() on the operands and return its result.</p>
+<p>The <tt class="docutils literal"><span class="pre">is_valid()</span></tt> function tells you whether the object has been initialized
+or not. When created with its default constructor, objects are invalid. To make
+an object valid, you can assign it a value. If you want to invalidate an object
+you can simply assign it an invalid object.</p>
+<p>The <tt class="docutils literal"><span class="pre">operator</span> <span class="pre">safe_bool_type()</span></tt> is equivalent to <tt class="docutils literal"><span class="pre">is_valid()</span></tt>. This means
+that these snippets are equivalent:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">object</span> <span class="n">o</span><span class="p">;</span>
+<span class="c1">// ...</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">o</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+
+<span class="p">...</span>
+
+<span class="n">object</span> <span class="n">o</span><span class="p">;</span>
+<span class="c1">// ...</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">o</span><span class="p">.</span><span class="n">is_valid</span><span class="p">())</span>
+<span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The application operator will call the value as if it was a function. You can
+give it any number of parameters (currently the <tt class="docutils literal"><span class="pre">default_policy</span></tt> will be used
+for the conversion). The returned object refers to the return value (currently
+only one return value is supported). This operator may throw <tt class="docutils literal"><span class="pre">luabind::error</span></tt>
+if the function call fails. If you want to specify policies to your function
+call, you can use index-operator (operator[]) on the function call, and give
+the policies within the [ and ]. Like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">my_function_object</span><span class="p">(</span>
+    <span class="mi">2</span>
+  <span class="p">,</span> <span class="mi">8</span>
+  <span class="p">,</span> <span class="k">new</span> <span class="n">my_complex_structure</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
+<span class="p">)</span> <span class="p">[</span> <span class="n">adopt</span><span class="p">(</span><span class="n">_3</span><span class="p">)</span> <span class="p">];</span>
+</pre></div>
+</div>
+<p>This tells luabind to make Lua adopt the ownership and responsibility for the
+pointer passed in to the lua-function.</p>
+<p>It&#8217;s important that all instances of object have been destructed by the time
+the Lua state is closed. The object will keep a pointer to the lua state and
+release its Lua object in its destructor.</p>
+<p>Here&#8217;s an example of how a function can use a table:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">my_function</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">table</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">type</span><span class="p">(</span><span class="n">table</span><span class="p">)</span> <span class="o">==</span> <span class="n">LUA_TTABLE</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">table</span><span class="p">[</span><span class="s">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">clock</span><span class="p">();</span>
+        <span class="n">table</span><span class="p">[</span><span class="s">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">rand</span><span class="p">()</span> <span class="o">&lt;</span> <span class="mi">500</span> <span class="o">?</span> <span class="s">&quot;unusual&quot;</span> <span class="o">:</span> <span class="s">&quot;usual&quot;</span><span class="p">;</span>
+
+        <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">object_cast</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="n">table</span><span class="p">[</span><span class="mi">5</span><span class="p">])</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>If you take a <tt class="docutils literal"><span class="pre">luabind::object</span></tt> as a parameter to a function, any Lua value
+will match that parameter. That&#8217;s why we have to make sure it&#8217;s a table before
+we index into it.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span> <span class="k">operator</span><span class="o">&lt;&lt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">ostream</span><span class="o">&amp;</span><span class="p">,</span> <span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>There&#8217;s a stream operator that makes it possible to print objects or use
+<tt class="docutils literal"><span class="pre">boost::lexical_cast</span></tt> to convert it to a string. This will use lua&#8217;s string
+conversion function. So if you convert a C++ object with a <tt class="docutils literal"><span class="pre">tostring</span></tt>
+operator, the stream operator for that type will be used.</p>
+<div class="section" id="iterators">
+<h2>Iterators<a class="headerlink" href="#iterators" title="Permalink to this headline">¶</a></h2>
+<p>There are two kinds of iterators. The normal iterator that will use the metamethod
+of the object (if there is any) when the value is retrieved. This iterator is simply
+called <tt class="docutils literal"><span class="pre">luabind::iterator</span></tt>. The other iterator is called <tt class="docutils literal"><span class="pre">luabind::raw_iterator</span></tt>
+and will bypass the metamethod and give the true contents of the table. They have
+identical interfaces, which implements the <a class="reference external" href="http://www.sgi.com/tech/stl/ForwardIterator.html">ForwardIterator</a> concept. Apart from
+the members of standard iterators, they have the following members and constructors:</p>
+<pre class="literal-block">
+class iterator
+{
+    iterator();
+    iterator(object const&amp;);
+
+    object key() const;
+
+    <em>standard iterator members</em>
+};
+</pre>
+<p>The constructor that takes a <tt class="docutils literal"><span class="pre">luabind::object</span></tt> is actually a template that can be
+used with object. Passing an object as the parameter to the iterator will
+construct the iterator to refer to the first element in the object.</p>
+<p>The default constructor will initialize the iterator to the one-past-end
+iterator. This is used to test for the end of the sequence.</p>
+<p>The value type of the iterator is an implementation defined proxy type which
+supports the same operations as <tt class="docutils literal"><span class="pre">luabind::object</span></tt>. Which means that in most
+cases you can just treat it as an ordinary object. The difference is that any
+assignments to this proxy will result in the value being inserted at the
+iterators position, in the table.</p>
+<p>The <tt class="docutils literal"><span class="pre">key()</span></tt> member returns the key used by the iterator when indexing the
+associated Lua table.</p>
+<p>An example using iterators:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">for</span> <span class="p">(</span><span class="n">iterator</span> <span class="n">i</span><span class="p">(</span><span class="n">globals</span><span class="p">(</span><span class="n">L</span><span class="p">)[</span><span class="s">&quot;a&quot;</span><span class="p">]),</span> <span class="n">end</span><span class="p">;</span> <span class="n">i</span> <span class="o">!=</span> <span class="n">end</span><span class="p">;</span> <span class="o">++</span><span class="n">i</span><span class="p">)</span>
+<span class="p">{</span>
+  <span class="o">*</span><span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The iterator named <tt class="docutils literal"><span class="pre">end</span></tt> will be constructed using the default constructor
+and hence refer to the end of the sequence. This example will simply iterate
+over the entries in the global table <tt class="docutils literal"><span class="pre">a</span></tt> and set all its values to 1.</p>
+</div>
+<div class="section" id="related-functions">
+<h2>Related functions<a class="headerlink" href="#related-functions" title="Permalink to this headline">¶</a></h2>
+<p>There are a couple of functions related to objects and tables.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">type</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This function will return the lua type index of the given object.
+i.e. <tt class="docutils literal"><span class="pre">LUA_TNIL</span></tt>, <tt class="docutils literal"><span class="pre">LUA_TNUMBER</span></tt> etc.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="k">class</span> <span class="nc">K</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">settable</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">o</span><span class="p">,</span> <span class="n">K</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">K</span><span class="o">&gt;</span>
+<span class="n">object</span> <span class="n">gettable</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">o</span><span class="p">,</span> <span class="n">K</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">);</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="k">class</span> <span class="nc">K</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">rawset</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">o</span><span class="p">,</span> <span class="n">K</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">,</span> <span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">K</span><span class="o">&gt;</span>
+<span class="n">object</span> <span class="n">rawget</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">o</span><span class="p">,</span> <span class="n">K</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">key</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>These functions are used for indexing into tables. <tt class="docutils literal"><span class="pre">settable</span></tt> and <tt class="docutils literal"><span class="pre">gettable</span></tt>
+translates into calls to <tt class="docutils literal"><span class="pre">lua_settable</span></tt> and <tt class="docutils literal"><span class="pre">lua_gettable</span></tt> respectively. Which
+means that you could just as well use the index operator of the object.</p>
+<p><tt class="docutils literal"><span class="pre">rawset</span></tt> and <tt class="docutils literal"><span class="pre">rawget</span></tt> will translate into calls to <tt class="docutils literal"><span class="pre">lua_rawset</span></tt> and
+<tt class="docutils literal"><span class="pre">lua_rawget</span></tt> respectively. So they will bypass any metamethod and give you the
+true value of the table entry.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">T</span> <span class="n">object_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Policies</span><span class="o">&gt;</span>
+<span class="n">T</span> <span class="n">object_cast</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">,</span> <span class="n">Policies</span><span class="p">);</span>
+
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">boost</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">object_cast_nothrow</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">);</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Policies</span><span class="o">&gt;</span>
+<span class="n">boost</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span> <span class="n">object_cast_nothrow</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span><span class="p">,</span> <span class="n">Policies</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">object_cast</span></tt> function casts the value of an object to a C++ value.
+You can supply a policy to handle the conversion from lua to C++. If the cast
+cannot be made a <tt class="docutils literal"><span class="pre">cast_failed</span></tt> exception will be thrown. If you have
+defined LUABIND_NO_ERROR_CHECKING (see <a class="reference internal" href="build-options.html#part-build-options"><em>Build options</em></a>) no checking
+will occur, and if the cast is invalid the application may very well crash.
+The nothrow versions will return an uninitialized <tt class="docutils literal"><span class="pre">boost::optional&lt;T&gt;</span></tt>
+object, to indicate that the cast could not be performed.</p>
+<p>The function signatures of all of the above functions are really templates
+for the object parameter, but the intention is that you should only pass
+objects in there, that&#8217;s why it&#8217;s left out of the documentation.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">object</span> <span class="nf">globals</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">);</span>
+<span class="n">object</span> <span class="nf">registry</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>These functions return the global environment table and the registry table respectively.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">object</span> <span class="nf">newtable</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>This function creates a new table and returns it as an object.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">object</span> <span class="nf">getmetatable</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">setmetatable</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">,</span> <span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">metatable</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>These functions get and set the metatable of a Lua object.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">lua_CFunction</span> <span class="nf">tocfunction</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="n">T</span><span class="o">*</span> <span class="n">touserdata</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>These extract values from the object at a lower level than <tt class="docutils literal"><span class="pre">object_cast()</span></tt>.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">object</span> <span class="nf">getupvalue</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">function</span><span class="p">,</span> <span class="kt">int</span> <span class="n">index</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">setupvalue</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">function</span><span class="p">,</span> <span class="kt">int</span> <span class="n">index</span><span class="p">,</span> <span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>These get and set the upvalues of <tt class="docutils literal"><span class="pre">function</span></tt>.</p>
+</div>
+<div class="section" id="assigning-nil">
+<h2>Assigning nil<a class="headerlink" href="#assigning-nil" title="Permalink to this headline">¶</a></h2>
+<p>To set a table entry to <tt class="docutils literal"><span class="pre">nil</span></tt>, you can use <tt class="docutils literal"><span class="pre">luabind::nil</span></tt>. It will avoid
+having to take the detour by first assigning <tt class="docutils literal"><span class="pre">nil</span></tt> to an object and then
+assign that to the table entry. It will simply result in a <tt class="docutils literal"><span class="pre">lua_pushnil()</span></tt>
+call, instead of copying an object.</p>
+<p>Example:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">using</span> <span class="n">luabind</span><span class="p">;</span>
+<span class="n">object</span> <span class="n">table</span> <span class="o">=</span> <span class="n">newtable</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+<span class="n">table</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;bar&quot;</span><span class="p">;</span>
+
+<span class="c1">// now, clear the &quot;foo&quot;-field</span>
+<span class="n">table</span><span class="p">[</span><span class="s">&quot;foo&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">nil</span><span class="p">;</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Object</a><ul>
+<li><a class="reference internal" href="#iterators">Iterators</a></li>
+<li><a class="reference internal" href="#related-functions">Related functions</a></li>
+<li><a class="reference internal" href="#assigning-nil">Assigning nil</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="userdefined-converters.html"
+                        title="previous chapter">Adding converters for user defined types</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="lua-classes.html"
+                        title="next chapter">Defining classes in Lua</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="lua-classes.html" title="Defining classes in Lua"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="userdefined-converters.html" title="Adding converters for user defined types"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

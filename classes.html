@@ -1,0 +1,660 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Binding classes to Lua &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Adding converters for user defined types" href="userdefined-converters.html" />
+    <link rel="prev" title="Binding functions to Lua" href="functions.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="userdefined-converters.html" title="Adding converters for user defined types"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="functions.html" title="Binding functions to Lua"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="binding-classes-to-lua">
+<span id="part-classes"></span><h1>Binding classes to Lua<a class="headerlink" href="#binding-classes-to-lua" title="Permalink to this headline">¶</a></h1>
+<p>To register classes you use a class called <tt class="docutils literal"><span class="pre">class_</span></tt>. Its name is supposed to
+resemble the C++ keyword, to make it look more intuitive. It has an overloaded
+member function <tt class="docutils literal"><span class="pre">def()</span></tt> that is used to register member functions, operators,
+constructors, enums and properties on the class. It will return its
+this-pointer, to let you register more members directly.</p>
+<p>Let&#8217;s start with a simple example. Consider the following C++ class:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">class</span> <span class="nc">testclass</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="n">testclass</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">s</span><span class="p">)</span><span class="o">:</span> <span class="n">m_string</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="kt">void</span> <span class="n">print_string</span><span class="p">()</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">m_string</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">m_string</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>To register it with a Lua environment, write as follows (assuming you are using
+namespace luabind):</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">testclass</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;testclass&quot;</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="n">constructor</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;&gt;</span><span class="p">())</span>
+        <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;print_string&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">testclass</span><span class="o">::</span><span class="n">print_string</span><span class="p">)</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<p>This will register the class with the name testclass and constructor that takes
+a string as argument and one member function with the name <tt class="docutils literal"><span class="pre">print_string</span></tt>.</p>
+<div class="highlight-c++"><pre>Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
+&gt; a = testclass('a string')
+&gt; a:print_string()
+a string</pre>
+</div>
+<p>It is also possible to register free functions as member functions. The
+requirement on the function is that it takes a pointer, const pointer,
+reference or const reference to the class type as the first parameter. The rest
+of the parameters are the ones that are visible in Lua, while the object
+pointer is given as the first parameter. If we have the following C++ code:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">plus</span><span class="p">(</span><span class="n">A</span><span class="o">*</span> <span class="n">o</span><span class="p">,</span> <span class="kt">int</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">o</span><span class="o">-&gt;</span><span class="n">a</span> <span class="o">+</span> <span class="n">v</span><span class="p">;</span> <span class="p">}</span>
+</pre></div>
+</div>
+<p>You can register <tt class="docutils literal"><span class="pre">plus()</span></tt> as if it was a member function of A like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">class_</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+    <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;plus&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">plus</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">plus()</span></tt> can now be called as a member function on A with one parameter, int.
+If the object pointer parameter is const, the function will act as if it was a
+const member function (it can be called on const objects).</p>
+<div class="section" id="overloaded-member-functions">
+<h2>Overloaded member functions<a class="headerlink" href="#overloaded-member-functions" title="Permalink to this headline">¶</a></h2>
+<p>When binding more than one overloads of a member function, or just binding
+one overload of an overloaded member function, you have to disambiguate
+the member function pointer you pass to <tt class="docutils literal"><span class="pre">def</span></tt>. To do this, you can use an
+ordinary C-style cast, to cast it to the right overload. To do this, you have
+to know how to express member function types in C++, here&#8217;s a short tutorial
+(for more info, refer to your favorite book on C++).</p>
+<p>The syntax for member function pointer follows:</p>
+<pre class="literal-block">
+<em>return-value</em> (<em>class-name</em>::*)(<em>arg1-type</em>, <em>arg2-type</em>, <em>...</em>)
+</pre>
+<p>Here&#8217;s an example illlustrating this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span>
+<span class="p">{</span>
+    <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="kt">int</span><span class="p">);</span>
+    <span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">class_</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">()</span>
+    <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="n">A</span><span class="o">::*</span><span class="p">)(</span><span class="kt">int</span><span class="p">))</span><span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">f</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This selects the first overload of the function <tt class="docutils literal"><span class="pre">f</span></tt> to bind. The second
+overload is not bound.</p>
+</div>
+<div class="section" id="properties">
+<span id="sec-properties"></span><h2>Properties<a class="headerlink" href="#properties" title="Permalink to this headline">¶</a></h2>
+<p>To register a global data member with a class is easily done. Consider the
+following class:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>This class is registered like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">def_readwrite</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">a</span><span class="p">)</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<p>This gives read and write access to the member variable <tt class="docutils literal"><span class="pre">A::a</span></tt>. It is also
+possible to register attributes with read-only access:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">def_readonly</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">a</span><span class="p">)</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<p>When binding members that are a non-primitive type, the auto generated getter
+function will return a reference to it. This is to allow chained .-operators.
+For example, when having a struct containing another struct. Like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span> <span class="kt">int</span> <span class="n">m</span><span class="p">;</span> <span class="p">};</span>
+<span class="k">struct</span> <span class="n">B</span> <span class="p">{</span> <span class="n">A</span> <span class="n">a</span><span class="p">;</span> <span class="p">};</span>
+</pre></div>
+</div>
+<p>When binding <tt class="docutils literal"><span class="pre">B</span></tt> to lua, the following expression code should work:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
+<span class="n">b</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">m</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">assert</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">a</span><span class="p">.</span><span class="n">m</span> <span class="o">==</span> <span class="mi">1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This requires the first lookup (on <tt class="docutils literal"><span class="pre">a</span></tt>) to return a reference to <tt class="docutils literal"><span class="pre">A</span></tt>, and
+not a copy. In that case, luabind will automatically use the dependency policy
+to make the return value dependent on the object in which it is stored. So, if
+the returned reference lives longer than all references to the object (b in
+this case) it will keep the object alive, to avoid being a dangling pointer.</p>
+<p>You can also register getter and setter functions and make them look as if they
+were a public data member. Consider the following class:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">class</span> <span class="nc">A</span>
+<span class="p">{</span>
+<span class="nl">public:</span>
+    <span class="kt">void</span> <span class="n">set_a</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="n">a</span> <span class="o">=</span> <span class="n">x</span><span class="p">;</span> <span class="p">}</span>
+    <span class="kt">int</span> <span class="n">get_a</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span> <span class="k">return</span> <span class="n">a</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="nl">private:</span>
+    <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>It can be registered as if it had a public data member a like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">class_</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+    <span class="p">.</span><span class="n">property</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">get_a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">A</span><span class="o">::</span><span class="n">set_a</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This way the <tt class="docutils literal"><span class="pre">get_a()</span></tt> and <tt class="docutils literal"><span class="pre">set_a()</span></tt> functions will be called instead of
+just writing  to the data member. If you want to make it read only you can just
+omit the last parameter. Please note that the get function <strong>has to be
+const</strong>, otherwise it won&#8217;t compile. This seems to be a common source of errors.</p>
+</div>
+<div class="section" id="enums">
+<h2>Enums<a class="headerlink" href="#enums" title="Permalink to this headline">¶</a></h2>
+<p>If your class contains enumerated constants (enums), you can register them as
+well to make them available in Lua. Note that they will not be type safe, all
+enums are integers in Lua, and all functions that takes an enum, will accept
+any integer. You register them like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">)</span>
+        <span class="p">.</span><span class="n">enum_</span><span class="p">(</span><span class="s">&quot;constants&quot;</span><span class="p">)</span>
+        <span class="p">[</span>
+            <span class="n">value</span><span class="p">(</span><span class="s">&quot;my_enum&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+            <span class="n">value</span><span class="p">(</span><span class="s">&quot;my_2nd_enum&quot;</span><span class="p">,</span> <span class="mi">7</span><span class="p">),</span>
+            <span class="n">value</span><span class="p">(</span><span class="s">&quot;another_enum&quot;</span><span class="p">,</span> <span class="mi">6</span><span class="p">)</span>
+        <span class="p">]</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<p>In Lua they are accessed like any data member, except that they are read-only
+and reached on the class itself rather than on an instance of the class.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">Lua</span> <span class="mf">5.0</span>  <span class="n">Copyright</span> <span class="p">(</span><span class="n">C</span><span class="p">)</span> <span class="mi">1994</span><span class="o">-</span><span class="mi">2003</span> <span class="n">Tecgraf</span><span class="p">,</span> <span class="n">PUC</span><span class="o">-</span><span class="n">Rio</span>
+<span class="o">&gt;</span> <span class="n">print</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">my_enum</span><span class="p">)</span>
+<span class="mi">4</span>
+<span class="o">&gt;</span> <span class="n">print</span><span class="p">(</span><span class="n">A</span><span class="p">.</span><span class="n">another_enum</span><span class="p">)</span>
+<span class="mi">6</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="operators">
+<h2>Operators<a class="headerlink" href="#operators" title="Permalink to this headline">¶</a></h2>
+<p>To bind operators you have to include <tt class="docutils literal"><span class="pre">&lt;luabind/operator.hpp&gt;</span></tt>.</p>
+<p>The mechanism for registering operators on your class is pretty simple. You use
+a global name <tt class="docutils literal"><span class="pre">luabind::self</span></tt> to refer to the class itself and then you just
+write the operator expression inside the <tt class="docutils literal"><span class="pre">def()</span></tt> call. This class:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">vec</span>
+<span class="p">{</span>
+    <span class="n">vec</span> <span class="k">operator</span><span class="o">+</span><span class="p">(</span><span class="kt">int</span> <span class="n">s</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Is registered like this:</p>
+<pre class="literal-block">
+module(L)
+[
+    class_&lt;vec&gt;(&quot;vec&quot;)
+        .def(<strong>self + int()</strong>)
+];
+</pre>
+<p>This will work regardless if your plus operator is defined inside your class or
+as a free function.</p>
+<p>If your operator is const (or, when defined as a free function, takes a const
+reference to the class itself) you have to use <tt class="docutils literal"><span class="pre">const_self</span></tt> instead of
+<tt class="docutils literal"><span class="pre">self</span></tt>. Like this:</p>
+<pre class="literal-block">
+module(L)
+[
+    class_&lt;vec&gt;(&quot;vec&quot;)
+        .def(<strong>const_self</strong> + int())
+];
+</pre>
+<p>The operators supported are those available in Lua:</p>
+<pre class="literal-block">
++    -    *    /    ==    &lt;    &lt;=
+</pre>
+<p>This means, no in-place operators. The equality operator (<tt class="docutils literal"><span class="pre">==</span></tt>) has a little
+hitch; it will not be called if the references are equal. This means that the
+<tt class="docutils literal"><span class="pre">==</span></tt> operator has to do pretty much what&#8217;s it&#8217;s expected to do.</p>
+<p>Lua does not support operators such as <tt class="docutils literal"><span class="pre">!=</span></tt>, <tt class="docutils literal"><span class="pre">&gt;</span></tt> or <tt class="docutils literal"><span class="pre">&gt;=</span></tt>. That&#8217;s why you
+can only register the operators listed above. When you invoke one of the
+mentioned operators, lua will define it in terms of one of the available
+operators.</p>
+<p>In the above example the other operand type is instantiated by writing
+<tt class="docutils literal"><span class="pre">int()</span></tt>. If the operand type is a complex type that cannot easily be
+instantiated you can wrap the type in a class called <tt class="docutils literal"><span class="pre">other&lt;&gt;</span></tt>. For example:</p>
+<p>To register this class, we don&#8217;t want to instantiate a string just to register
+the operator.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">vec</span>
+<span class="p">{</span>
+    <span class="n">vec</span> <span class="k">operator</span><span class="o">+</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">);</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>Instead we use the <tt class="docutils literal"><span class="pre">other&lt;&gt;</span></tt> wrapper like this:</p>
+<pre class="literal-block">
+module(L)
+[
+    class_&lt;vec&gt;(&quot;vec&quot;)
+        .def(self + <strong>other&lt;std::string&gt;()</strong>)
+];
+</pre>
+<p>To register an application (function call-) operator:</p>
+<pre class="literal-block">
+module(L)
+[
+    class_&lt;vec&gt;(&quot;vec&quot;)
+        .def( <strong>self(int())</strong> )
+];
+</pre>
+<p>There&#8217;s one special operator. In Lua it&#8217;s called <tt class="docutils literal"><span class="pre">__tostring</span></tt>, it&#8217;s not
+really an operator. It is used for converting objects to strings in a standard
+way in Lua. If you register this functionality, you will be able to use the lua
+standard function <tt class="docutils literal"><span class="pre">tostring()</span></tt> for converting your object to a string.</p>
+<p>To implement this operator in C++ you should supply an <tt class="docutils literal"><span class="pre">operator&lt;&lt;</span></tt> for
+std::ostream. Like this example:</p>
+<pre class="literal-block">
+class number {};
+std::ostream&amp; operator&lt;&lt;(std::ostream&amp;, number&amp;);
+
+...
+
+module(L)
+[
+    class_&lt;number&gt;(&quot;number&quot;)
+        .def(<strong>tostring(self)</strong>)
+];
+</pre>
+</div>
+<div class="section" id="nested-scopes-and-static-functions">
+<h2>Nested scopes and static functions<a class="headerlink" href="#nested-scopes-and-static-functions" title="Permalink to this headline">¶</a></h2>
+<p>It is possible to add nested scopes to a class. This is useful when you need
+to wrap a nested class, or a static function.</p>
+<pre class="literal-block">
+class_&lt;foo&gt;(&quot;foo&quot;)
+    .def(constructor&lt;&gt;())
+    <strong>.scope
+    [
+        class_&lt;inner&gt;(&quot;nested&quot;),
+        def(&quot;f&quot;, &amp;f)
+    ]</strong>;
+</pre>
+<p>In this example, <tt class="docutils literal"><span class="pre">f</span></tt> will behave like a static member function of the class
+<tt class="docutils literal"><span class="pre">foo</span></tt>, and the class <tt class="docutils literal"><span class="pre">nested</span></tt> will behave like a nested class of <tt class="docutils literal"><span class="pre">foo</span></tt>.</p>
+<p>It&#8217;s also possible to add namespaces to classes using the same syntax.</p>
+</div>
+<div class="section" id="derived-classes">
+<h2>Derived classes<a class="headerlink" href="#derived-classes" title="Permalink to this headline">¶</a></h2>
+<p>If you want to register classes that derives from other classes, you can
+specify a template parameter <tt class="docutils literal"><span class="pre">bases&lt;&gt;</span></tt> to the <tt class="docutils literal"><span class="pre">class_</span></tt> instantiation. The
+following hierarchy:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span> <span class="p">{};</span>
+<span class="k">struct</span> <span class="n">B</span> <span class="o">:</span> <span class="n">A</span> <span class="p">{};</span>
+</pre></div>
+</div>
+<p>Would be registered like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;A&quot;</span><span class="p">),</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">B</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<p>If you have multiple inheritance you can specify more than one base. If B would
+also derive from a class C, it would be registered like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">B</span><span class="p">,</span> <span class="n">bases</span><span class="o">&lt;</span><span class="n">A</span><span class="p">,</span> <span class="n">C</span><span class="o">&gt;</span> <span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;B&quot;</span><span class="p">)</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<p>Note that you can omit <tt class="docutils literal"><span class="pre">bases&lt;&gt;</span></tt> when using single inheritance.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">If you don&#8217;t specify that classes derive from each other, luabind will not
+be able to implicitly cast pointers between the types.</p>
+</div>
+</div>
+<div class="section" id="smart-pointers">
+<h2>Smart pointers<a class="headerlink" href="#smart-pointers" title="Permalink to this headline">¶</a></h2>
+<p>When registering a class you can tell luabind to hold all instances
+explicitly created in Lua in a specific smart pointer type, rather than
+the default raw pointer. This is done by passing an additional template
+parameter to <tt class="docutils literal"><span class="pre">class_</span></tt>:</p>
+<pre class="literal-block">
+class_&lt;X, <strong>P</strong>&gt;(…)
+</pre>
+<p>Where the requirements of <tt class="docutils literal"><span class="pre">P</span></tt> are:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="38%" />
+<col width="62%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Expression</th>
+<th class="head">Returns</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">P(raw)</span></tt></td>
+<td>&nbsp;</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">get_pointer(p)</span></tt></td>
+<td>Convertible to <tt class="docutils literal"><span class="pre">X*</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>where:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">raw</span></tt> is of type <tt class="docutils literal"><span class="pre">X*</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">p</span></tt> is an instance of <tt class="docutils literal"><span class="pre">P</span></tt></li>
+</ul>
+<p><tt class="docutils literal"><span class="pre">get_pointer()</span></tt> overloads are provided for the smart pointers in
+Boost, and <tt class="docutils literal"><span class="pre">std::auto_ptr&lt;&gt;</span></tt>. Should you need to provide your own
+overload, note that it is called unqualified and is expected to be found
+by <em>argument dependent lookup</em>. Thus it should be defined in the same
+namespace as the pointer type it operates on.</p>
+<p>For example:</p>
+<pre class="literal-block">
+class_&lt;X, <strong>boost::scoped_ptr&lt;X&gt;</strong> &gt;(&quot;X&quot;)
+  .def(constructor&lt;&gt;())
+</pre>
+<p>Will cause luabind to hold any instance created on the Lua side in a
+<tt class="docutils literal"><span class="pre">boost::scoped_ptr&lt;X&gt;</span></tt>. Note that this doesn&#8217;t mean <strong>all</strong> instances
+will be held by a <tt class="docutils literal"><span class="pre">boost::scoped_ptr&lt;X&gt;</span></tt>. If, for example, you
+register a function:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">std</span><span class="o">::</span><span class="n">auto_ptr</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span> <span class="n">make_X</span><span class="p">();</span>
+</pre></div>
+</div>
+<p>the instance returned by that will be held in <tt class="docutils literal"><span class="pre">std::auto_ptr&lt;X&gt;</span></tt>. This
+is handled automatically for all smart pointers that implement a
+<tt class="docutils literal"><span class="pre">get_pointer()</span></tt> overload.</p>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p class="last"><tt class="docutils literal"><span class="pre">get_const_holder()</span></tt> has been removed. Automatic conversions
+between <tt class="docutils literal"><span class="pre">smart_ptr&lt;X&gt;</span></tt> and <tt class="docutils literal"><span class="pre">smart_ptr&lt;X</span> <span class="pre">const&gt;</span></tt> no longer work.</p>
+</div>
+<div class="admonition important">
+<p class="first admonition-title">Important</p>
+<p><tt class="docutils literal"><span class="pre">__ok</span></tt>  has been removed. Similar functionality can be implemented
+for specific pointer types by doing something along the lines of:</p>
+<pre class="last literal-block">
+bool is_non_null(std::auto_ptr&lt;X&gt; const&amp; p)
+{
+    return p.get();
+}
+
+…
+
+def(&quot;is_non_null&quot;, &amp;is_non_null)
+</pre>
+</div>
+<p>When registering a hierarchy of classes, where all instances are to be held
+by a smart pointer, all the classes should have the baseclass&#8217; holder type.
+Like this:</p>
+<pre class="literal-block">
+module(L)
+[
+    class_&lt;base, boost::shared_ptr&lt;base&gt; &gt;(&quot;base&quot;)
+        .def(constructor&lt;&gt;()),
+    class_&lt;derived, base, <strong>boost::shared_ptr&lt;base&gt;</strong> &gt;(&quot;derived&quot;)
+        .def(constructor&lt;&gt;())
+];
+</pre>
+<p>Internally, luabind will do the necessary conversions on the raw pointers, which
+are first extracted from the holder type.</p>
+<p>This means that for Luabind a <tt class="docutils literal"><span class="pre">smart_ptr&lt;derived&gt;</span></tt> is not related to a
+<tt class="docutils literal"><span class="pre">smart_ptr&lt;base&gt;</span></tt>, but <tt class="docutils literal"><span class="pre">derived*</span></tt> and <tt class="docutils literal"><span class="pre">base*</span></tt> are, as are
+<tt class="docutils literal"><span class="pre">smart_ptr&lt;derived&gt;</span></tt> and <tt class="docutils literal"><span class="pre">base*</span></tt>. In other words, upcasting does not work
+for smart pointers as target types, but as source types.</p>
+<div class="section" id="additional-support-for-shared-ptr-and-intrusive-ptr">
+<h3>Additional support for shared_ptr and intrusive_ptr<a class="headerlink" href="#additional-support-for-shared-ptr-and-intrusive-ptr" title="Permalink to this headline">¶</a></h3>
+<p>This limitation cannot be removed for all smart pointers in a generic way,
+but luabind has special support for</p>
+<blockquote>
+<div><ul class="simple">
+<li><tt class="docutils literal"><span class="pre">boost::shared_ptr</span></tt> in <tt class="docutils literal"><span class="pre">shared_ptr_converter.hpp</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">std::shared_ptr</span></tt> in <tt class="docutils literal"><span class="pre">std_shared_ptr_converter.hpp</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">boost::intrusive_ptr</span></tt> in <tt class="docutils literal"><span class="pre">intrusive_ptr_converter.hpp</span></tt></li>
+</ul>
+</div></blockquote>
+<p>You should include the header(s) you need in the cpp files which register
+functions that accept the corresponding smart pointer types, to get automatic
+conversions from <tt class="docutils literal"><span class="pre">smart_ptr&lt;X&gt;</span></tt> to <tt class="docutils literal"><span class="pre">smart_ptr&lt;Y&gt;</span></tt>, whenever Luabind would
+convert <tt class="docutils literal"><span class="pre">X*</span></tt> to <tt class="docutils literal"><span class="pre">Y*</span></tt>, removing the limitation mentioned above.</p>
+<p>However, the <tt class="docutils literal"><span class="pre">shared_ptr</span></tt> converters might not behave exactly as you would
+expect:</p>
+<blockquote>
+<div><ol class="arabic">
+<li><p class="first">If the shared_ptr requested (from C++) has the exact same type as the
+one which is present in Lua (if any), then a copy will be made.</p>
+</li>
+<li><p class="first">If the pointee type of the requested shared_ptr has a
+<tt class="docutils literal"><span class="pre">shared_from_this</span></tt> member (checked automatically at compile time),
+this will be used to obtain a <tt class="docutils literal"><span class="pre">shared_ptr</span></tt>. Caveats:</p>
+<blockquote>
+<div><ul>
+<li><p class="first">If the object is not already held in a shared_ptr, behavior is
+undefined (probably a <tt class="docutils literal"><span class="pre">bad_weak_ptr</span></tt> exception will be thrown).</p>
+</li>
+<li><p class="first">If the <tt class="docutils literal"><span class="pre">shared_from_this</span></tt> member is not a function with the right
+prototype (<tt class="docutils literal"><span class="pre">ptr_t</span> <span class="pre">shared_from_this()</span></tt> with the expression</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">RequestedT</span><span class="o">&gt;</span><span class="p">(</span><span class="n">raw</span><span class="o">-&gt;</span><span class="n">shared_from_this</span><span class="p">(),</span> <span class="n">raw</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>being valid, where <tt class="docutils literal"><span class="pre">raw</span></tt> is of type <tt class="docutils literal"><span class="pre">RequestedT*</span></tt> and points to
+the C++ object in Lua.</p>
+</li>
+</ul>
+</div></blockquote>
+</li>
+<li><p class="first">Otherwise, a new <tt class="docutils literal"><span class="pre">shared_ptr</span></tt> will be created from the raw pointer
+associated with the Lua object (even if it is not held in a
+<tt class="docutils literal"><span class="pre">shared_ptr</span></tt>). It will have a deleter set that holds a strong
+reference to the Lua object, thus preventing it’s collection until the
+reference is released by invoking the deleter (i.e. by resetting or
+destroying the <tt class="docutils literal"><span class="pre">shared_ptr</span></tt>) or until the assocciated <tt class="docutils literal"><span class="pre">lua_State</span></tt>
+is closed: then the <tt class="docutils literal"><span class="pre">shared_ptr</span></tt> becomes dangling.</p>
+<p>If such a <tt class="docutils literal"><span class="pre">shared_ptr</span></tt> is passed back to Lua, the original Lua object
+(userdata) will be passed instead, preventing the creation of more
+<tt class="docutils literal"><span class="pre">shared_ptr</span></tt>s with this deleter.</p>
+</li>
+</ol>
+</div></blockquote>
+<p>1. is as you should have expected and 2. is special behavior introduced to
+avoid 3. when possible. If you cannot derive your (root) classes from
+<tt class="docutils literal"><span class="pre">enable_shared_from_this</span></tt> (which is the recommended way of providing a
+<tt class="docutils literal"><span class="pre">shared_from_this</span></tt> method) you must be careful not to close the
+<tt class="docutils literal"><span class="pre">lua_State</span></tt> when you still have a <tt class="docutils literal"><span class="pre">shared_ptr</span></tt> obtained by 3.</p>
+<p>There are three functions provided to support this (in namespace luabind):</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">bool</span> <span class="nf">is_state_unreferenced</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">);</span>
+
+<span class="k">typedef</span> <span class="nf">void</span><span class="p">(</span><span class="o">*</span><span class="n">state_unreferenced_fun</span><span class="p">)(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">set_state_unreferenced_callback</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="n">state_unreferenced_fun</span> <span class="n">cb</span><span class="p">);</span>
+<span class="n">state_unreferenced_fun</span> <span class="nf">get_state_unreferenced_callback</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">);</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">is_state_unreferenced</span></tt> will return <tt class="docutils literal"><span class="pre">false</span></tt> if closing <tt class="docutils literal"><span class="pre">L</span></tt> would make
+existing <tt class="docutils literal"><span class="pre">shared_ptrs</span></tt> dangling and <tt class="docutils literal"><span class="pre">true</span></tt> if it safe (in this respect) to
+call <tt class="docutils literal"><span class="pre">lua_close(L)</span></tt>.</p>
+<p>The <tt class="docutils literal"><span class="pre">cb</span></tt> argument passed to <tt class="docutils literal"><span class="pre">set_state_unreferenced_callback</span></tt> will be
+called whenever the return value of <tt class="docutils literal"><span class="pre">is_state_unreferenced(L)</span></tt> would change
+from <tt class="docutils literal"><span class="pre">false</span></tt> to <tt class="docutils literal"><span class="pre">true</span></tt>.</p>
+<p><tt class="docutils literal"><span class="pre">get_state_unreferenced_callback</span></tt> returns the current
+<tt class="docutils literal"><span class="pre">state_unreferenced_fun</span></tt> for <tt class="docutils literal"><span class="pre">L</span></tt>.</p>
+<p>A typical use of this functions would be to replace</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">lua_close</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>with</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">if</span> <span class="p">(</span><span class="n">luabind</span><span class="o">::</span><span class="n">is_state_unreferenced</span><span class="p">(</span><span class="n">L</span><span class="p">))</span>
+    <span class="n">lua_close</span><span class="p">(</span><span class="n">L</span><span class="p">);</span>
+<span class="k">else</span>
+    <span class="n">luabind</span><span class="o">::</span><span class="n">set_state_unreferenced_callback</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">lua_close</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>(<tt class="docutils literal"><span class="pre">lua_close</span></tt> happens to be a valid <tt class="docutils literal"><span class="pre">state_unreferenced_fun</span></tt>.)</p>
+</div>
+</div>
+<div class="section" id="splitting-class-registrations">
+<span id="sec-split-cls-registration"></span><h2>Splitting class registrations<a class="headerlink" href="#splitting-class-registrations" title="Permalink to this headline">¶</a></h2>
+<p>In some situations it may be desirable to split a registration of a class
+across different compilation units. Partly to save rebuild time when changing
+in one part of the binding, and in some cases compiler limits may force you
+to split it. To do this is very simple. Consider the following sample code:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">void</span> <span class="nf">register_part1</span><span class="p">(</span><span class="n">class_</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;&amp;</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="cm">/*...*/</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">register_part2</span><span class="p">(</span><span class="n">class_</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;&amp;</span> <span class="n">x</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">x</span><span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="cm">/*...*/</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="kt">void</span> <span class="nf">register_</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">class_</span><span class="o">&lt;</span><span class="n">X</span><span class="o">&gt;</span> <span class="n">x</span><span class="p">(</span><span class="s">&quot;x&quot;</span><span class="p">);</span>
+
+    <span class="n">register_part1</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+    <span class="n">register_part2</span><span class="p">(</span><span class="n">x</span><span class="p">);</span>
+
+    <span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span> <span class="p">[</span> <span class="n">x</span> <span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Here, the class <tt class="docutils literal"><span class="pre">X</span></tt> is registered in two steps. The two functions
+<tt class="docutils literal"><span class="pre">register_part1</span></tt> and <tt class="docutils literal"><span class="pre">register_part2</span></tt> may be put in separate compilation
+units.</p>
+<p>To separate the module registration and the classes to be registered, see
+<a class="reference internal" href="split-registration.html#part-split-registration"><em>Splitting up the registration</em></a>.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Binding classes to Lua</a><ul>
+<li><a class="reference internal" href="#overloaded-member-functions">Overloaded member functions</a></li>
+<li><a class="reference internal" href="#properties">Properties</a></li>
+<li><a class="reference internal" href="#enums">Enums</a></li>
+<li><a class="reference internal" href="#operators">Operators</a></li>
+<li><a class="reference internal" href="#nested-scopes-and-static-functions">Nested scopes and static functions</a></li>
+<li><a class="reference internal" href="#derived-classes">Derived classes</a></li>
+<li><a class="reference internal" href="#smart-pointers">Smart pointers</a><ul>
+<li><a class="reference internal" href="#additional-support-for-shared-ptr-and-intrusive-ptr">Additional support for shared_ptr and intrusive_ptr</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#splitting-class-registrations">Splitting class registrations</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="functions.html"
+                        title="previous chapter">Binding functions to Lua</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="userdefined-converters.html"
+                        title="next chapter">Adding converters for user defined types</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="userdefined-converters.html" title="Adding converters for user defined types"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="functions.html" title="Binding functions to Lua"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

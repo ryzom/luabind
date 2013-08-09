@@ -1,0 +1,155 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Implementation notes &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="FAQ" href="faq.html" />
+    <link rel="prev" title="Build options" href="build-options.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="faq.html" title="FAQ"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="build-options.html" title="Build options"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="implementation-notes">
+<h1>Implementation notes<a class="headerlink" href="#implementation-notes" title="Permalink to this headline">¶</a></h1>
+<p>The classes and objects are implemented as user data in Lua. To make sure that
+the user data really is the internal structure it is supposed to be, we tag
+their metatables. Previously a boolean at a string key was used, making it
+relatively easy for the malevolent user to fool Luabind and crash the
+application. However, this has been replaced with a light userdata key that
+should be quite impossible to imitate.</p>
+<p>In the Lua registry, luabind kept an entry called <tt class="docutils literal"><span class="pre">&quot;__luabind_classes&quot;</span></tt>.
+This string key is now also replaced with a light userdata one.</p>
+<p>In the global table, a variable called <tt class="docutils literal"><span class="pre">super</span></tt> is used every time a
+constructor in a lua-class is called. This is to make it easy for that
+constructor to call its base class&#8217; constructor. So, if you have a global
+variable named super it may be overwritten. This is probably not the best
+solution, and this restriction may be removed in the future.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Deprecated</p>
+<p><tt class="docutils literal"><span class="pre">super()</span></tt> has been deprecated since version 0.8 in favor of directly
+invoking the base class&#8217; <tt class="docutils literal"><span class="pre">__init()</span></tt> function:</p>
+<div class="last highlight-c++"><div class="highlight"><pre><span class="n">function</span> <span class="n">Derived</span><span class="o">:</span><span class="n">__init</span><span class="p">()</span>
+    <span class="n">Base</span><span class="p">.</span><span class="n">__init</span><span class="p">(</span><span class="n">self</span><span class="p">)</span>
+<span class="n">end</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="the-detail-namespace-and-undocumented-features">
+<h2>The detail namespace and undocumented features<a class="headerlink" href="#the-detail-namespace-and-undocumented-features" title="Permalink to this headline">¶</a></h2>
+<p>Inside the luabind namespace, there’s another namespace called <tt class="docutils literal"><span class="pre">detail</span></tt>.
+Everything cotained therein should not be used by user code and is subject to
+change or vanish even between patch versions. There also exist no explicit
+tests or documentation for this namespace’s contents.</p>
+<p>Classes and functions which reside directly in the <tt class="docutils literal"><span class="pre">luabind</span></tt> namespace but
+are not documented should also rather not be used. However, if you have to
+depend on undocumented features, these are still better than the <tt class="docutils literal"><span class="pre">detail</span></tt>
+ones.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Implementation notes</a><ul>
+<li><a class="reference internal" href="#the-detail-namespace-and-undocumented-features">The detail namespace and undocumented features</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="build-options.html"
+                        title="previous chapter">Build options</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="faq.html"
+                        title="next chapter">FAQ</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="faq.html" title="FAQ"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="build-options.html" title="Build options"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

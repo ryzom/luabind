@@ -1,0 +1,149 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Splitting up the registration &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Error Handling" href="errors.html" />
+    <link rel="prev" title="Policies" href="policies.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="errors.html" title="Error Handling"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="policies.html" title="Policies"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="splitting-up-the-registration">
+<span id="part-split-registration"></span><h1>Splitting up the registration<a class="headerlink" href="#splitting-up-the-registration" title="Permalink to this headline">¶</a></h1>
+<p>It is possible to split up a module registration into several
+translation units without making each registration dependent
+on the module it&#8217;s being registered in.</p>
+<p><tt class="docutils literal"><span class="pre">a.cpp</span></tt>:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">luabind</span><span class="o">::</span><span class="n">scope</span> <span class="n">register_a</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">return</span>
+        <span class="n">class_</span><span class="o">&lt;</span><span class="n">a</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;a&quot;</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">a</span><span class="o">::</span><span class="n">f</span><span class="p">)</span>
+            <span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">b.cpp</span></tt>:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">luabind</span><span class="o">::</span><span class="n">scope</span> <span class="n">register_b</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">return</span>
+        <span class="n">class_</span><span class="o">&lt;</span><span class="n">b</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">)</span>
+            <span class="p">.</span><span class="n">def</span><span class="p">(</span><span class="s">&quot;g&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="o">::</span><span class="n">g</span><span class="p">)</span>
+            <span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><tt class="docutils literal"><span class="pre">module_ab.cpp</span></tt>:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">luabind</span><span class="o">::</span><span class="n">scope</span> <span class="n">register_a</span><span class="p">();</span>
+<span class="n">luabind</span><span class="o">::</span><span class="n">scope</span> <span class="n">register_b</span><span class="p">();</span>
+
+<span class="kt">void</span> <span class="nf">register_module</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">module</span><span class="p">(</span><span class="s">&quot;b&quot;</span><span class="p">,</span> <span class="n">L</span><span class="p">)</span>
+    <span class="p">[</span>
+        <span class="n">register_a</span><span class="p">(),</span>
+        <span class="n">register_b</span><span class="p">()</span>
+    <span class="p">];</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="policies.html"
+                        title="previous chapter">Policies</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="errors.html"
+                        title="next chapter">Error Handling</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="errors.html" title="Error Handling"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="policies.html" title="Policies"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

@@ -1,0 +1,789 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Policies &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Splitting up the registration" href="split-registration.html" />
+    <link rel="prev" title="Exceptions" href="exceptions.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="split-registration.html" title="Splitting up the registration"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="exceptions.html" title="Exceptions"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="policies">
+<span id="part-policies"></span><h1>Policies<a class="headerlink" href="#policies" title="Permalink to this headline">¶</a></h1>
+<p>Sometimes it is necessary to control how luabind passes arguments and return
+value, to do this we have policies. All policies use an index to associate
+them with an argument in the function signature. These indices are <tt class="docutils literal"><span class="pre">result</span></tt>
+and <tt class="docutils literal"><span class="pre">_N</span></tt> (where <tt class="docutils literal"><span class="pre">N</span> <span class="pre">&gt;=</span> <span class="pre">1</span></tt>). When dealing with member functions <tt class="docutils literal"><span class="pre">_1</span></tt> refers
+to the <tt class="docutils literal"><span class="pre">this</span></tt> pointer.</p>
+<div class="contents local topic" id="policies-currently-implemented">
+<p class="topic-title first">Policies currently implemented</p>
+<ul class="simple">
+<li><a class="reference internal" href="#adopt" id="id43">adopt</a></li>
+<li><a class="reference internal" href="#dependency" id="id44">dependency</a></li>
+<li><a class="reference internal" href="#out-value" id="id45">out_value</a></li>
+<li><a class="reference internal" href="#pure-out-value" id="id46">pure_out_value</a></li>
+<li><a class="reference internal" href="#return-reference-to" id="id47">return_reference_to</a></li>
+<li><a class="reference internal" href="#copy" id="id48">copy</a></li>
+<li><a class="reference internal" href="#discard-result" id="id49">discard_result</a></li>
+<li><a class="reference internal" href="#return-stl-iterator" id="id50">return_stl_iterator</a></li>
+<li><a class="reference internal" href="#raw" id="id51">raw</a></li>
+<li><a class="reference internal" href="#yield" id="id52">yield</a></li>
+</ul>
+</div>
+<div class="section" id="adopt">
+<h2><a class="toc-backref" href="#id43">adopt</a><a class="headerlink" href="#adopt" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="motivation">
+<h3>Motivation<a class="headerlink" href="#motivation" title="Permalink to this headline">¶</a></h3>
+<p>Used to transfer ownership across language boundaries.</p>
+</div>
+<div class="section" id="defined-in">
+<h3>Defined in<a class="headerlink" href="#defined-in" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/adopt_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="synopsis">
+<h3>Synopsis<a class="headerlink" href="#synopsis" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">adopt</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="parameters">
+<h3>Parameters<a class="headerlink" href="#parameters" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">index</span></tt></td>
+<td>The index which should transfer ownership, <tt class="docutils literal"><span class="pre">_N</span></tt> or <tt class="docutils literal"><span class="pre">result</span></tt></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+X* create()
+{
+    return new X;
+}
+
+...
+
+module(L)
+[
+    def(&quot;create&quot;, &amp;create, <strong>adopt(result)</strong>)
+];
+</pre>
+</div>
+</div>
+<div class="section" id="dependency">
+<h2><a class="toc-backref" href="#id44">dependency</a><a class="headerlink" href="#dependency" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id1">
+<h3>Motivation<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<p>The dependency policy is used to create life-time dependencies between values.
+This is needed for example when returning internal references to some class.</p>
+</div>
+<div class="section" id="id2">
+<h3>Defined in<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/dependency_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id3">
+<h3>Synopsis<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">dependency</span><span class="p">(</span><span class="n">nurse_index</span><span class="p">,</span> <span class="n">patient_index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id4">
+<h3>Parameters<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="23%" />
+<col width="77%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">nurse_index</span></tt></td>
+<td>The index which will keep the patient alive.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">patient_index</span></tt></td>
+<td>The index which will be kept alive.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id5">
+<h3>Example<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+struct X
+{
+    B member;
+    B&amp; get() { return member; }
+};
+
+module(L)
+[
+    class_&lt;X&gt;(&quot;X&quot;)
+        .def(&quot;get&quot;, &amp;X::get, <strong>dependency(result, _1)</strong>)
+];
+</pre>
+</div>
+</div>
+<div class="section" id="out-value">
+<span id="policy-out-value"></span><h2><a class="toc-backref" href="#id45">out_value</a><a class="headerlink" href="#out-value" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id6">
+<h3>Motivation<a class="headerlink" href="#id6" title="Permalink to this headline">¶</a></h3>
+<p>This policy makes it possible to wrap functions that take non-const references
+or pointer to non-const as it&#8217;s parameters with the intention to write return
+values to them. Since it&#8217;s impossible to pass references to primitive types
+in lua, this policy will add another return value with the value after the
+call. If the function already has one return value, one instance of this
+policy will add another return value (read about multiple return values in
+the lua manual).</p>
+</div>
+<div class="section" id="id7">
+<h3>Defined in<a class="headerlink" href="#id7" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/out_value_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id8">
+<h3>Synopsis<a class="headerlink" href="#id8" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">out_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">policies</span> <span class="o">=</span> <span class="n">none</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id9">
+<h3>Parameters<a class="headerlink" href="#id9" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">index</span></tt></td>
+<td>The index of the parameter to be used as an out parameter.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">policies</span></tt></td>
+<td>The policies used internally to convert the out parameter
+to/from Lua. <tt class="docutils literal"><span class="pre">_1</span></tt> means <strong>to</strong> C++, <tt class="docutils literal"><span class="pre">_2</span></tt> means <strong>from</strong>
+C++.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id10">
+<h3>Example<a class="headerlink" href="#id10" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+void f1(float&amp; val) { val = val + 10.f; }
+void f2(float* val) { *val = *val + 10.f; }
+
+module(L)
+[
+    def(&quot;f&quot;, &amp;f, <strong>out_value(_1)</strong>)
+];
+
+Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
+&gt; print(f1(10))
+20
+&gt; print(f2(10))
+20
+</pre>
+</div>
+</div>
+<div class="section" id="pure-out-value">
+<span id="policy-pure-out-value"></span><h2><a class="toc-backref" href="#id46">pure_out_value</a><a class="headerlink" href="#pure-out-value" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id11">
+<h3>Motivation<a class="headerlink" href="#id11" title="Permalink to this headline">¶</a></h3>
+<p>This works exactly like <tt class="docutils literal"><span class="pre">out_value</span></tt>, except that it will pass a
+default constructed object instead of converting an argument from
+Lua. This means that the parameter will be removed from the lua
+signature.</p>
+</div>
+<div class="section" id="id12">
+<h3>Defined in<a class="headerlink" href="#id12" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/out_value_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id13">
+<h3>Synopsis<a class="headerlink" href="#id13" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">pure_out_value</span><span class="p">(</span><span class="n">index</span><span class="p">,</span> <span class="n">policies</span> <span class="o">=</span> <span class="n">none</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id14">
+<h3>Parameters<a class="headerlink" href="#id14" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="20%" />
+<col width="80%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">index</span></tt></td>
+<td>The index of the parameter to be used as an out parameter.</td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">policies</span></tt></td>
+<td>The policies used internally to convert the out parameter
+to Lua. <tt class="docutils literal"><span class="pre">_1</span></tt> is used as the internal index.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id15">
+<h3>Example<a class="headerlink" href="#id15" title="Permalink to this headline">¶</a></h3>
+<p>Note that no values are passed to the calls to <tt class="docutils literal"><span class="pre">f1</span></tt> and <tt class="docutils literal"><span class="pre">f2</span></tt>.</p>
+<pre class="literal-block">
+void f1(float&amp; val) { val = 10.f; }
+void f2(float* val) { *val = 10.f; }
+
+module(L)
+[
+    def(&quot;f&quot;, &amp;f, <strong>pure_out_value(_1)</strong>)
+];
+
+Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
+&gt; print(f1())
+10
+&gt; print(f2())
+10
+</pre>
+</div>
+</div>
+<div class="section" id="return-reference-to">
+<h2><a class="toc-backref" href="#id47">return_reference_to</a><a class="headerlink" href="#return-reference-to" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id16">
+<h3>Motivation<a class="headerlink" href="#id16" title="Permalink to this headline">¶</a></h3>
+<p>It is very common to return references to arguments or the this-pointer to
+allow for chaining in C++.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span>
+<span class="p">{</span>
+    <span class="kt">float</span> <span class="n">val</span><span class="p">;</span>
+
+    <span class="n">A</span><span class="o">&amp;</span> <span class="n">set</span><span class="p">(</span><span class="kt">float</span> <span class="n">v</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">v</span><span class="p">;</span>
+        <span class="k">return</span> <span class="o">*</span><span class="k">this</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+</pre></div>
+</div>
+<p>When luabind generates code for this, it will create a new object for the
+return-value, pointing to the self-object. This isn&#8217;t a problem, but could be a
+bit inefficient. When using the return_reference_to-policy we have the ability
+to tell luabind that the return-value is already on the lua stack.</p>
+</div>
+<div class="section" id="id17">
+<h3>Defined in<a class="headerlink" href="#id17" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/return_reference_to_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id18">
+<h3>Synopsis<a class="headerlink" href="#id18" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">return_reference_to</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id19">
+<h3>Parameters<a class="headerlink" href="#id19" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="13%" />
+<col width="87%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">index</span></tt></td>
+<td>The argument index to return a reference to, any argument but
+not <tt class="docutils literal"><span class="pre">result</span></tt>.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id20">
+<h3>Example<a class="headerlink" href="#id20" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+struct A
+{
+    float val;
+
+    A&amp; set(float v)
+    {
+        val = v;
+        return *this;
+    }
+};
+
+module(L)
+[
+    class_&lt;A&gt;(&quot;A&quot;)
+        .def(constructor&lt;&gt;())
+        .def(&quot;set&quot;, &amp;A::set, <strong>return_reference_to(_1)</strong>)
+];
+</pre>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This policy ignores all type information and should be used only it
+situations where the parameter type is a perfect match to the
+return-type (such as in the example).</p>
+</div>
+</div>
+</div>
+<div class="section" id="copy">
+<h2><a class="toc-backref" href="#id48">copy</a><a class="headerlink" href="#copy" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id21">
+<h3>Motivation<a class="headerlink" href="#id21" title="Permalink to this headline">¶</a></h3>
+<p>This will make a copy of the parameter. This is the default behavior when
+passing parameters by-value. Note that this can only be used when passing from
+C++ to Lua. This policy requires that the parameter type has an accessible copy
+constructor.</p>
+</div>
+<div class="section" id="id22">
+<h3>Defined in<a class="headerlink" href="#id22" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/copy_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id23">
+<h3>Synopsis<a class="headerlink" href="#id23" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">copy</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id24">
+<h3>Parameters<a class="headerlink" href="#id24" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">index</span></tt></td>
+<td>The index to copy. <tt class="docutils literal"><span class="pre">result</span></tt> when used while wrapping C++
+functions. <tt class="docutils literal"><span class="pre">_N</span></tt> when passing arguments to Lua.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id25">
+<h3>Example<a class="headerlink" href="#id25" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+X* get()
+{
+    static X instance;
+    return &amp;instance;
+}
+
+...
+
+module(L)
+[
+    def(&quot;create&quot;, &amp;create, <strong>copy(result)</strong>)
+];
+</pre>
+</div>
+</div>
+<div class="section" id="discard-result">
+<h2><a class="toc-backref" href="#id49">discard_result</a><a class="headerlink" href="#discard-result" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id26">
+<h3>Motivation<a class="headerlink" href="#id26" title="Permalink to this headline">¶</a></h3>
+<p>This is a very simple policy which makes it possible to throw away
+the value returned by a C++ function, instead of converting it to
+Lua.</p>
+</div>
+<div class="section" id="id27">
+<h3>Defined in<a class="headerlink" href="#id27" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/discard_result_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id28">
+<h3>Synopsis<a class="headerlink" href="#id28" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">discard_result</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id29">
+<h3>Example<a class="headerlink" href="#id29" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+struct X
+{
+    X&amp; set(T n)
+    {
+        ...
+        return *this;
+    }
+};
+
+...
+
+module(L)
+[
+    class_&lt;X&gt;(&quot;X&quot;)
+        .def(&quot;set&quot;, &amp;simple::set, <strong>discard_result</strong>)
+];
+</pre>
+</div>
+</div>
+<div class="section" id="return-stl-iterator">
+<h2><a class="toc-backref" href="#id50">return_stl_iterator</a><a class="headerlink" href="#return-stl-iterator" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id30">
+<h3>Motivation<a class="headerlink" href="#id30" title="Permalink to this headline">¶</a></h3>
+<p>This policy converts an STL container to a generator function that can be used
+in lua to iterate over the container. It works on any container that defines
+<tt class="docutils literal"><span class="pre">begin()</span></tt> and <tt class="docutils literal"><span class="pre">end()</span></tt> member functions (they have to return iterators).</p>
+</div>
+<div class="section" id="id31">
+<h3>Defined in<a class="headerlink" href="#id31" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/iterator_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id32">
+<h3>Synopsis<a class="headerlink" href="#id32" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">return_stl_iterator</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id33">
+<h3>Example<a class="headerlink" href="#id33" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+struct X
+{
+    std::vector&lt;std::string&gt; names;
+};
+
+...
+
+module(L)
+[
+    class_&lt;A&gt;(&quot;A&quot;)
+        .def_readwrite(&quot;names&quot;, &amp;X::names, <strong>return_stl_iterator</strong>)
+];
+
+...
+
+&gt; a = A()
+&gt; for name in a.names do
+&gt;  print(name)
+&gt; end
+</pre>
+</div>
+</div>
+<div class="section" id="raw">
+<h2><a class="toc-backref" href="#id51">raw</a><a class="headerlink" href="#raw" title="Permalink to this headline">¶</a></h2>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last"><tt class="docutils literal"><span class="pre">raw()</span></tt> has been deprecated. <tt class="docutils literal"><span class="pre">lua_State*</span></tt> parameters are
+automatically handled by luabind.</p>
+</div>
+<div class="section" id="id34">
+<h3>Motivation<a class="headerlink" href="#id34" title="Permalink to this headline">¶</a></h3>
+<p>This converter policy will pass through the <tt class="docutils literal"><span class="pre">lua_State*</span></tt> unmodified.
+This can be useful for example when binding functions that need to
+return a <tt class="docutils literal"><span class="pre">luabind::object</span></tt>. The parameter will be removed from the
+function signature, decreasing the function arity by one.</p>
+</div>
+<div class="section" id="id35">
+<h3>Defined in<a class="headerlink" href="#id35" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/raw_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id36">
+<h3>Synopsis<a class="headerlink" href="#id36" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">raw</span><span class="p">(</span><span class="n">index</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id37">
+<h3>Parameters<a class="headerlink" href="#id37" title="Permalink to this headline">¶</a></h3>
+<table border="1" class="docutils">
+<colgroup>
+<col width="17%" />
+<col width="83%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Parameter</th>
+<th class="head">Purpose</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">index</span></tt></td>
+<td>The index of the lua_State* parameter.</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="section" id="id38">
+<h3>Example<a class="headerlink" href="#id38" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+void greet(lua_State* L)
+{
+    lua_pushstring(L, &quot;hello&quot;);
+}
+
+...
+
+module(L)
+[
+    def(&quot;greet&quot;, &amp;greet, <strong>raw(_1)</strong>)
+];
+
+&gt; print(greet())
+hello
+</pre>
+</div>
+</div>
+<div class="section" id="yield">
+<span id="policy-yield"></span><h2><a class="toc-backref" href="#id52">yield</a><a class="headerlink" href="#yield" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="id39">
+<h3>Motivation<a class="headerlink" href="#id39" title="Permalink to this headline">¶</a></h3>
+<p>Makes a C++ function yield when returning.</p>
+</div>
+<div class="section" id="id40">
+<h3>Defined in<a class="headerlink" href="#id40" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="cp">#include &lt;luabind/yield_policy.hpp&gt;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id41">
+<h3>Synopsis<a class="headerlink" href="#id41" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">yield</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="id42">
+<h3>Example<a class="headerlink" href="#id42" title="Permalink to this headline">¶</a></h3>
+<pre class="literal-block">
+void do_thing_that_takes_time()
+{
+    ...
+}
+
+...
+
+module(L)
+[
+    def(&quot;do_thing_that_takes_time&quot;, &amp;do_thing_that_takes_time, <strong>yield</strong>)
+];
+</pre>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Policies</a><ul>
+<li><a class="reference internal" href="#adopt">adopt</a><ul>
+<li><a class="reference internal" href="#motivation">Motivation</a></li>
+<li><a class="reference internal" href="#defined-in">Defined in</a></li>
+<li><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li><a class="reference internal" href="#parameters">Parameters</a></li>
+<li><a class="reference internal" href="#example">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#dependency">dependency</a><ul>
+<li><a class="reference internal" href="#id1">Motivation</a></li>
+<li><a class="reference internal" href="#id2">Defined in</a></li>
+<li><a class="reference internal" href="#id3">Synopsis</a></li>
+<li><a class="reference internal" href="#id4">Parameters</a></li>
+<li><a class="reference internal" href="#id5">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#out-value">out_value</a><ul>
+<li><a class="reference internal" href="#id6">Motivation</a></li>
+<li><a class="reference internal" href="#id7">Defined in</a></li>
+<li><a class="reference internal" href="#id8">Synopsis</a></li>
+<li><a class="reference internal" href="#id9">Parameters</a></li>
+<li><a class="reference internal" href="#id10">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#pure-out-value">pure_out_value</a><ul>
+<li><a class="reference internal" href="#id11">Motivation</a></li>
+<li><a class="reference internal" href="#id12">Defined in</a></li>
+<li><a class="reference internal" href="#id13">Synopsis</a></li>
+<li><a class="reference internal" href="#id14">Parameters</a></li>
+<li><a class="reference internal" href="#id15">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#return-reference-to">return_reference_to</a><ul>
+<li><a class="reference internal" href="#id16">Motivation</a></li>
+<li><a class="reference internal" href="#id17">Defined in</a></li>
+<li><a class="reference internal" href="#id18">Synopsis</a></li>
+<li><a class="reference internal" href="#id19">Parameters</a></li>
+<li><a class="reference internal" href="#id20">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#copy">copy</a><ul>
+<li><a class="reference internal" href="#id21">Motivation</a></li>
+<li><a class="reference internal" href="#id22">Defined in</a></li>
+<li><a class="reference internal" href="#id23">Synopsis</a></li>
+<li><a class="reference internal" href="#id24">Parameters</a></li>
+<li><a class="reference internal" href="#id25">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#discard-result">discard_result</a><ul>
+<li><a class="reference internal" href="#id26">Motivation</a></li>
+<li><a class="reference internal" href="#id27">Defined in</a></li>
+<li><a class="reference internal" href="#id28">Synopsis</a></li>
+<li><a class="reference internal" href="#id29">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#return-stl-iterator">return_stl_iterator</a><ul>
+<li><a class="reference internal" href="#id30">Motivation</a></li>
+<li><a class="reference internal" href="#id31">Defined in</a></li>
+<li><a class="reference internal" href="#id32">Synopsis</a></li>
+<li><a class="reference internal" href="#id33">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#raw">raw</a><ul>
+<li><a class="reference internal" href="#id34">Motivation</a></li>
+<li><a class="reference internal" href="#id35">Defined in</a></li>
+<li><a class="reference internal" href="#id36">Synopsis</a></li>
+<li><a class="reference internal" href="#id37">Parameters</a></li>
+<li><a class="reference internal" href="#id38">Example</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#yield">yield</a><ul>
+<li><a class="reference internal" href="#id39">Motivation</a></li>
+<li><a class="reference internal" href="#id40">Defined in</a></li>
+<li><a class="reference internal" href="#id41">Synopsis</a></li>
+<li><a class="reference internal" href="#id42">Example</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="exceptions.html"
+                        title="previous chapter">Exceptions</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="split-registration.html"
+                        title="next chapter">Splitting up the registration</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="split-registration.html" title="Splitting up the registration"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="exceptions.html" title="Exceptions"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

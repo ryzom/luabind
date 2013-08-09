@@ -1,0 +1,217 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Build options &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Implementation notes" href="impl-notes.html" />
+    <link rel="prev" title="Error Handling" href="errors.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="impl-notes.html" title="Implementation notes"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="errors.html" title="Error Handling"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="build-options">
+<span id="part-build-options"></span><h1>Build options<a class="headerlink" href="#build-options" title="Permalink to this headline">¶</a></h1>
+<p>There are a number of configuration options available when building luabind.
+It is very important that your project has the exact same configuration
+options as the ones given when the library was build! The exceptions are the
+<tt class="docutils literal"><span class="pre">LUABIND_MAX_ARITY</span></tt> and <tt class="docutils literal"><span class="pre">LUABIND_MAX_BASES</span></tt> which are template-based
+options and only matters when you use the library (which means they can
+differ from the settings of the library).</p>
+<p>The default settings which will be used if no other settings are given
+can be found in <tt class="docutils literal"><span class="pre">luabind/config.hpp</span></tt>.</p>
+<p>If you want to change the settings of the library, you can modify the
+config file. It is included and used by all makefiles. You can change paths
+to Lua and boost in there as well.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">LUABIND_MAX_ARITY</span></tt></dt>
+<dd>Controls the maximum arity of functions that are registered with luabind.
+You can&#8217;t register functions that takes more parameters than the number
+this macro is set to. It defaults to 5, so, if your functions have greater
+arity you have to redefine it. A high limit will increase compilation time.</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_MAX_BASES</span></tt></dt>
+<dd>Controls the maximum number of classes one class can derive from in
+luabind (the number of classes specified within <tt class="docutils literal"><span class="pre">bases&lt;&gt;</span></tt>).
+<tt class="docutils literal"><span class="pre">LUABIND_MAX_BASES</span></tt> defaults to 4. A high limit will increase
+compilation time.</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_NO_ERROR_CHECKING</span></tt></dt>
+<dd><p class="first">If this macro is defined, all the Lua code is expected only to make legal
+calls. If illegal function calls are made (e.g. giving parameters that
+doesn&#8217;t match the function signature) they will not be detected by luabind
+and the application will probably crash. Error checking could be disabled
+when shipping a release build (given that no end-user has access to write
+custom Lua code). Note that function parameter matching will be done if a
+function is overloaded, since otherwise it&#8217;s impossible to know which one
+was called. Functions will still be able to throw exceptions when error
+checking is disabled.</p>
+<p class="last">If a function throws an exception it will be caught by luabind and
+propagated with <tt class="docutils literal"><span class="pre">lua_error()</span></tt>.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_NO_EXCEPTIONS</span></tt></dt>
+<dd><p class="first">This define will disable all usage of try, catch and throw in luabind.
+This will in many cases disable run-time errors, when performing invalid
+casts or calling Lua functions that fails or returns values that cannot
+be converted by the given policy. luabind requires that no function called
+directly or indirectly by luabind throws an exception (throwing exceptions
+through Lua has undefined behavior).</p>
+<p class="last">Where exceptions are the only way to get an error report from luabind,
+they will be replaced with calls to the callback functions set with
+<tt class="docutils literal"><span class="pre">set_error_callback()</span></tt> and <tt class="docutils literal"><span class="pre">set_cast_failed_callback()</span></tt>.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">LUA_API</span></tt></dt>
+<dd>If you want to link dynamically against Lua, you can set this define to
+the import-keyword on your compiler and platform. On Windows in Visual Studio
+this should be <tt class="docutils literal"><span class="pre">__declspec(dllimport)</span></tt> if you want to link against Lua
+as a dll.</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_DYNAMIC_LINK</span></tt></dt>
+<dd>Must be defined if you intend to link against the luabind shared
+library.</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_CPLUSPLUS_LUA</span></tt></dt>
+<dd>Without this, all included Lua headers will be wrapped in <tt class="docutils literal"><span class="pre">extern</span> <span class="pre">&quot;C&quot;</span></tt>.
+Define this if you compiled Lua as C++.</dd>
+<dt><tt class="docutils literal"><span class="pre">NDEBUG</span></tt></dt>
+<dd>This define will disable all asserts and should be defined in a release
+build.</dd>
+</dl>
+<div class="section" id="cmake-options">
+<h2>CMake options<a class="headerlink" href="#cmake-options" title="Permalink to this headline">¶</a></h2>
+<p>The following options can be given to CMake when building luabind. You can
+either specify them directly on the commandline using <tt class="docutils literal"><span class="pre">-Doption=value</span></tt> or
+let CMake ask you for each of them by invoking it with the <tt class="docutils literal"><span class="pre">-i</span></tt> flag. On
+Windows, you will usually prefer <tt class="docutils literal"><span class="pre">cmake-gui</span></tt>.</p>
+<p>If not specified otherwise, all options are boolean and default to <tt class="docutils literal"><span class="pre">OFF</span></tt>.</p>
+<dl class="docutils">
+<dt><tt class="docutils literal"><span class="pre">LUABIND_ENABLE_WARNINGS</span></tt></dt>
+<dd>Enable compiler warnings during the build of luabind and the tests.</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_NO_CXX11</span></tt></dt>
+<dd>Disable C++11 support: By default the <tt class="docutils literal"><span class="pre">-std=c++11</span></tt> compiler option is
+specified on g++ &gt;= 4.7 and all Clang versions (no version check is
+implemented for this compiler). Enabling this option will cause the
+compiler flag to be omitted.</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_SKIP_TESTS</span></tt></dt>
+<dd>Do not build the tests (they must be run manually in any case).</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_BUILD_HEADER_TESTS</span></tt></dt>
+<dd><p class="first">Enable this for (many) additional compilation tests: Each of Luabind’s
+public headers will be included in a generated .cpp file which otherwise
+only contains an empty main function, meaning that one dummy binary per
+header file is generated.</p>
+<p class="last">This can only be enabled if <tt class="docutils literal"><span class="pre">LUABIND_SKIP_TESTS</span></tt> is not enabled.</p>
+</dd>
+<dt><tt class="docutils literal"><span class="pre">LUABIND_APPEND_VERSION_SUFFIX</span></tt></dt>
+<dd>With this option set (the default), built binaries and object archives
+will be named e.g. <tt class="docutils literal"><span class="pre">luabind09.dll</span></tt> instead of just <tt class="docutils literal"><span class="pre">luabind.dll</span></tt>.</dd>
+<dt><tt class="docutils literal"><span class="pre">BUILD_SHARED_LIBS</span></tt></dt>
+<dd>Build luabind as a shared/dynamic library (.so or DLL). If enabling this,
+you should link Lua dynamically to both Luabind and your application. If
+you encounter double-free errors or other memory corruption, this might be
+the problem.</dd>
+<dt><tt class="docutils literal"><span class="pre">CMAKE_BUILD_TYPE</span></tt></dt>
+<dd>See the corresponding entry in the CMake manual.</dd>
+</dl>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Build options</a><ul>
+<li><a class="reference internal" href="#cmake-options">CMake options</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="errors.html"
+                        title="previous chapter">Error Handling</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="impl-notes.html"
+                        title="next chapter">Implementation notes</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="impl-notes.html" title="Implementation notes"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="errors.html" title="Error Handling"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>

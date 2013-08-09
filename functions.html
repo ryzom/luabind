@@ -1,0 +1,316 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Binding functions to Lua &mdash; Luabind 0.9 documentation</title>
+    
+    <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.9',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="next" title="Binding classes to Lua" href="classes.html" />
+    <link rel="prev" title="Scopes" href="scopes.html" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nobile:regular,italic,bold,bolditalic&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
+<!--[if lte IE 6]>
+<link rel="stylesheet" href="_static/ie6.css" type="text/css" media="screen" charset="utf-8" />
+<![endif]-->
+
+  </head>
+  <body>
+
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="classes.html" title="Binding classes to Lua"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="scopes.html" title="Scopes"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="binding-functions-to-lua">
+<span id="part-functions"></span><h1>Binding functions to Lua<a class="headerlink" href="#binding-functions-to-lua" title="Permalink to this headline">¶</a></h1>
+<p>To bind functions to Lua you use the function <tt class="docutils literal"><span class="pre">luabind::def()</span></tt>. It has the
+following synopsis:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">F</span><span class="p">,</span> <span class="k">class</span> <span class="nc">policies</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">def</span><span class="p">(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span> <span class="n">F</span> <span class="n">f</span><span class="p">,</span> <span class="k">const</span> <span class="n">Policies</span><span class="o">&amp;</span><span class="p">);</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li>name is the name the function will have within Lua.</li>
+<li>F is the function pointer you want to register.</li>
+<li>The Policies parameter is used to describe how parameters and return values
+are treated by the function, this is an optional parameter. More on this in
+the <em class="xref std std-ref">part-policies</em> section.</li>
+</ul>
+<p>An example usage could be if you want to register the function <tt class="docutils literal"><span class="pre">float</span>
+<span class="pre">std::sin(float)</span></tt>:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">def</span><span class="p">(</span><span class="s">&quot;sin&quot;</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">std</span><span class="o">::</span><span class="n">sin</span><span class="p">)</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+<div class="section" id="overloaded-functions">
+<h2>Overloaded functions<a class="headerlink" href="#overloaded-functions" title="Permalink to this headline">¶</a></h2>
+<p>If you have more than one function with the same name, and want to register
+them in Lua, you have to explicitly give the signature. This is to let C++ know
+which function you refer to. For example, if you have two functions, <tt class="docutils literal"><span class="pre">int</span>
+<span class="pre">f(const</span> <span class="pre">char*)</span></tt> and <tt class="docutils literal"><span class="pre">void</span> <span class="pre">f(int)</span></tt>.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">module</span><span class="p">(</span><span class="n">L</span><span class="p">)</span>
+<span class="p">[</span>
+    <span class="n">def</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">int</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="k">const</span> <span class="kt">char</span><span class="o">*</span><span class="p">))</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">),</span>
+    <span class="n">def</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="p">(</span><span class="kt">void</span><span class="p">(</span><span class="o">*</span><span class="p">)(</span><span class="kt">int</span><span class="p">))</span> <span class="o">&amp;</span><span class="n">f</span><span class="p">)</span>
+<span class="p">];</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="signature-matching">
+<h2>Signature matching<a class="headerlink" href="#signature-matching" title="Permalink to this headline">¶</a></h2>
+<p>luabind will generate code that checks the Lua stack to see if the values there
+can match your functions&#8217; signatures. It will handle implicit typecasts between
+derived classes, and it will prefer matches with the least number of implicit
+casts. In a function call, if the function is overloaded and there&#8217;s no
+overload that match the parameters better than the other, you have an
+ambiguity. This will spawn a run-time error, stating that the function call is
+ambiguous. A simple example of this is to register one function that takes an
+int and one that takes a float. Since Lua doesn&#8217;t distinguish between floats and
+integers, both will always match.</p>
+<p>Since all overloads are tested, it will always find the best match (not the
+first match). This also means that it can handle situations where the only
+difference in the signature is that one member function is const and the other
+isn&#8217;t.</p>
+<div class="sidebar">
+<p class="first sidebar-title">Ownership transfer</p>
+<p class="last">To correctly handle ownership transfer, create_a() would need an adopt
+return value policy. More on this in the <em class="xref std std-ref">part-policies</em> section.</p>
+</div>
+<p>For example, if the following function and class is registered:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span>
+<span class="p">{</span>
+    <span class="kt">void</span> <span class="n">f</span><span class="p">();</span>
+    <span class="kt">void</span> <span class="n">f</span><span class="p">()</span> <span class="k">const</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">const</span> <span class="n">A</span><span class="o">*</span> <span class="nf">create_a</span><span class="p">();</span>
+
+<span class="k">struct</span> <span class="n">B</span><span class="o">:</span> <span class="n">A</span> <span class="p">{};</span>
+<span class="k">struct</span> <span class="n">C</span><span class="o">:</span> <span class="n">B</span> <span class="p">{};</span>
+
+<span class="kt">void</span> <span class="nf">g</span><span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">g</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>And the following Lua code is executed:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="n">a1</span> <span class="o">=</span> <span class="n">create_a</span><span class="p">()</span>
+<span class="nl">a1:</span><span class="n">f</span><span class="p">()</span> <span class="o">--</span> <span class="n">the</span> <span class="k">const</span> <span class="n">version</span> <span class="n">is</span> <span class="n">called</span>
+
+<span class="n">a2</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
+<span class="nl">a2:</span><span class="n">f</span><span class="p">()</span> <span class="o">--</span> <span class="n">the</span> <span class="n">non</span><span class="o">-</span><span class="k">const</span> <span class="n">version</span> <span class="n">is</span> <span class="n">called</span>
+
+<span class="n">a</span> <span class="o">=</span> <span class="n">A</span><span class="p">()</span>
+<span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
+<span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
+
+<span class="n">g</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">--</span> <span class="n">calls</span> <span class="n">g</span><span class="p">(</span><span class="n">A</span><span class="o">*</span><span class="p">)</span>
+<span class="n">g</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">--</span> <span class="n">calls</span> <span class="n">g</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="p">)</span>
+<span class="n">g</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">--</span> <span class="n">calls</span> <span class="n">g</span><span class="p">(</span><span class="n">B</span><span class="o">*</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="calling-lua-functions">
+<h2>Calling Lua functions<a class="headerlink" href="#calling-lua-functions" title="Permalink to this headline">¶</a></h2>
+<p>To call a Lua function, you can either use <tt class="docutils literal"><span class="pre">call_function()</span></tt> or
+an <tt class="docutils literal"><span class="pre">object</span></tt>.</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Ret</span><span class="o">&gt;</span>
+<span class="n">Ret</span> <span class="n">call_function</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span> <span class="p">...)</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Ret</span><span class="o">&gt;</span>
+<span class="n">Ret</span> <span class="n">call_function</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">,</span> <span class="p">...)</span>
+</pre></div>
+</div>
+<p>There are two overloads of the <tt class="docutils literal"><span class="pre">call_function</span></tt> function, one that calls
+a function given its name, and one that takes an object that should be a Lua
+value that can be called as a function.</p>
+<p>The overload that takes a name can only call global Lua functions. The ...
+represents a variable number of parameters that are sent to the Lua
+function. This function call may throw <tt class="docutils literal"><span class="pre">luabind::error</span></tt> if the function
+call fails.</p>
+<p>The return value isn&#8217;t actually Ret (the template parameter), but a proxy
+object that will do the function call. This enables you to give policies to the
+call. You do this with the operator[]. You give the policies within the
+brackets, like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">call_function</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span>
+    <span class="n">L</span>
+  <span class="p">,</span> <span class="s">&quot;a_lua_function&quot;</span>
+  <span class="p">,</span> <span class="k">new</span> <span class="n">complex_class</span><span class="p">()</span>
+<span class="p">)[</span> <span class="n">adopt</span><span class="p">(</span><span class="n">_1</span><span class="p">)</span> <span class="p">];</span>
+</pre></div>
+</div>
+<p>If you want to pass a parameter as a reference, you have to wrap it with the
+<a class="reference external" href="http://www.boost.org/doc/html/ref.html">Boost.Ref</a>.</p>
+<p>Like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">int</span> <span class="n">ret</span> <span class="o">=</span> <span class="n">call_function</span><span class="p">(</span><span class="n">L</span><span class="p">,</span> <span class="s">&quot;fun&quot;</span><span class="p">,</span> <span class="n">boost</span><span class="o">::</span><span class="n">ref</span><span class="p">(</span><span class="n">val</span><span class="p">));</span>
+</pre></div>
+</div>
+<p>If you want to use a custom error handler for the function call, see
+<tt class="docutils literal"><span class="pre">set_pcall_callback</span></tt> under <a class="reference internal" href="errors.html#sec-pcall-errorfunc"><em>pcall errorfunc</em></a>.</p>
+</div>
+<div class="section" id="using-lua-threads">
+<h2>Using Lua threads<a class="headerlink" href="#using-lua-threads" title="Permalink to this headline">¶</a></h2>
+<p>To start a Lua thread, you have to call <tt class="docutils literal"><span class="pre">lua_resume()</span></tt>, this means that you
+cannot use the previous function <tt class="docutils literal"><span class="pre">call_function()</span></tt> to start a thread. You have
+to use</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Ret</span><span class="o">&gt;</span>
+<span class="n">Ret</span> <span class="n">resume_function</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="k">const</span> <span class="kt">char</span><span class="o">*</span> <span class="n">name</span><span class="p">,</span> <span class="p">...)</span>
+<span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Ret</span><span class="o">&gt;</span>
+<span class="n">Ret</span> <span class="n">resume_function</span><span class="p">(</span><span class="n">object</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">,</span> <span class="p">...)</span>
+</pre></div>
+</div>
+<p>and</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Ret</span><span class="o">&gt;</span>
+<span class="n">Ret</span> <span class="n">resume</span><span class="p">(</span><span class="n">lua_State</span><span class="o">*</span> <span class="n">L</span><span class="p">,</span> <span class="p">...)</span>
+</pre></div>
+</div>
+<p>The first time you start the thread, you have to give it a function to execute. i.e. you
+have to use <tt class="docutils literal"><span class="pre">resume_function</span></tt>, when the Lua function yields, it will return the first
+value passed in to <tt class="docutils literal"><span class="pre">lua_yield()</span></tt>. When you want to continue the execution, you just call
+<tt class="docutils literal"><span class="pre">resume()</span></tt> on your <tt class="docutils literal"><span class="pre">lua_State</span></tt>, since it&#8217;s already executing a function, you don&#8217;t pass
+it one. The parameters to <tt class="docutils literal"><span class="pre">resume()</span></tt> will be returned by <tt class="docutils literal"><span class="pre">yield()</span></tt> on the Lua side.</p>
+<p>For yielding C++-functions (without the support of passing data back and forth between the
+Lua side and the c++ side), you can use the <a class="reference internal" href="policies.html#policy-yield"><em>yield</em></a> policy.</p>
+<p>With the overload of <tt class="docutils literal"><span class="pre">resume_function</span></tt> that takes an <em class="xref std std-ref">part-object</em>,
+it is important that the object was constructed with the thread as its
+<tt class="docutils literal"><span class="pre">lua_State*</span></tt>. Like this:</p>
+<pre class="literal-block">
+lua_State* thread = lua_newthread(L);
+object fun = get_global(<strong>thread</strong>)[&quot;my_thread_fun&quot;];
+resume_function(fun);
+</pre>
+</div>
+<div class="section" id="binding-function-objects-with-explicit-signatures">
+<h2>Binding function objects with explicit signatures<a class="headerlink" href="#binding-function-objects-with-explicit-signatures" title="Permalink to this headline">¶</a></h2>
+<p>Using <tt class="docutils literal"><span class="pre">luabind::tag_function&lt;&gt;</span></tt> it is possible to export function objects
+from which luabind can&#8217;t automatically deduce a signature. This can be used to
+slightly alter the signature of a bound function, or even to bind stateful
+function objects.</p>
+<p>Synopsis:</p>
+<pre class="literal-block">
+template &lt;class Signature, class F&gt;
+<em>implementation-defined</em> tag_function(F f);
+</pre>
+<p>Where <tt class="docutils literal"><span class="pre">Signature</span></tt> is a function type describing the signature of <tt class="docutils literal"><span class="pre">F</span></tt>.
+It can be used like this:</p>
+<div class="highlight-c++"><div class="highlight"><pre><span class="kt">int</span> <span class="nf">f</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">);</span>
+
+<span class="c1">// alter the signature so that the return value is ignored</span>
+<span class="n">def</span><span class="p">(</span><span class="s">&quot;f&quot;</span><span class="p">,</span> <span class="n">tag_function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span><span class="p">(</span><span class="n">f</span><span class="p">));</span>
+
+<span class="k">struct</span> <span class="n">plus</span>
+<span class="p">{</span>
+    <span class="n">plus</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span>
+      <span class="o">:</span> <span class="n">x</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+    <span class="p">{}</span>
+
+    <span class="kt">int</span> <span class="k">operator</span><span class="p">()(</span><span class="kt">int</span> <span class="n">y</span><span class="p">)</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// bind a stateful function object</span>
+<span class="n">def</span><span class="p">(</span><span class="s">&quot;plus3&quot;</span><span class="p">,</span> <span class="n">tag_function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span><span class="p">(</span><span class="n">plus</span><span class="p">(</span><span class="mi">3</span><span class="p">)));</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Binding functions to Lua</a><ul>
+<li><a class="reference internal" href="#overloaded-functions">Overloaded functions</a></li>
+<li><a class="reference internal" href="#signature-matching">Signature matching</a></li>
+<li><a class="reference internal" href="#calling-lua-functions">Calling Lua functions</a></li>
+<li><a class="reference internal" href="#using-lua-threads">Using Lua threads</a></li>
+<li><a class="reference internal" href="#binding-function-objects-with-explicit-signatures">Binding function objects with explicit signatures</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="scopes.html"
+                        title="previous chapter">Scopes</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="classes.html"
+                        title="next chapter">Binding classes to Lua</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="classes.html" title="Binding classes to Lua"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="scopes.html" title="Scopes"
+             >previous</a> |</li>
+        <li><a href="index.html">Luabind</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2013, Daniel Wallin, Arvid Norberg.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+    </div>
+  </body>
+</html>
