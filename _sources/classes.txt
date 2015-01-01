@@ -248,9 +248,21 @@ The operators supported are those available in Lua:
 
     +    -    \*    /    ==    <    <=    %
 
-This means, no in-place operators. The equality operator (``==``) has a little
-hitch; it will not be called if the references are equal. This means that the
-``==`` operator has to do pretty much what's it's expected to do.
+This means, no in-place operators.
+
+Default implementations (described below) are provided for `==` and the
+special `__tostring` pseudo-operator. If any other operator is called, Luabind
+will trigger an error ("[const] class <type>: no <metamethod name> defined.",
+e.g. "class vec: no __div operator defined.").
+
+The equality operator (``==``) has a little hitch; it will not be called if
+the references are equal. This means that the ``==`` operator has to do pretty
+much what's it's expected to do.
+
+For Luabind's default `==` operator, two objects are equal only if they are
+both objects of Luabind-exported classes and have the same addresses, after
+casting both to a common base if neccessary. If they do not have a common
+base (and are not of the same type), they compare unequal.
 
 Lua does not support operators such as ``!=``, ``>`` or ``>=``. That's why you
 can only register the operators listed above. When you invoke one of the
@@ -305,7 +317,7 @@ std::ostream. Like this example:
     std::ostream& operator<<(std::ostream&, number&);
 
     ...
-    
+
     module(L)
     [
         class_<number>("number")
@@ -316,14 +328,16 @@ If you do not define a ``__tostring`` operator, Luabind supplies a default
 which result in strings of the form ``[const] <type> object: <address>``, i.e.
 ``const`` is prepended if the object is const, ``<type>`` will be the string
 you supplied to ``class_`` (or a string derived from `std::type_info::name`
-for unnamed classes) and ``<address>`` will be the address of the Lua userdata
-(meaning that different addresses could refer to the same C++ object).
+for unnamed classes) and ``<address>`` will be the address of the C++ object.
+(Note that in multiple inheritance scenarios where the same object is pushed
+as multiple different base types, the addresses returned for the same
+most-derived object will differ).
 
 
 Nested scopes and static functions
 ----------------------------------
 
-It is possible to add nested scopes to a class. This is useful when you need 
+It is possible to add nested scopes to a class. This is useful when you need
 to wrap a nested class, or a static function.
 
 .. parsed-literal::
@@ -344,11 +358,11 @@ It's also possible to add namespaces to classes using the same syntax.
 
 Derived classes
 ---------------
-  
+
 If you want to register classes that derives from other classes, you can
 specify a template parameter ``bases<>`` to the ``class_`` instantiation. The
 following hierarchy::
-   
+
     struct A {};
     struct B : A {};
 
@@ -501,7 +515,7 @@ expect:
           prototype (``ptr_t shared_from_this()`` with the expression ::
 
             shared_ptr<RequestedT>(raw->shared_from_this(), raw)
-        
+
           being valid, where ``raw`` is of type ``RequestedT*`` and points to
           the C++ object in Lua.
 

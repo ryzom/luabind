@@ -6,7 +6,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Defining classes in Lua &mdash; Luabind 0.9 documentation</title>
+    <title>Defining classes in Lua &mdash; Luabind 0.9.1-358-g3227453
+ documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +15,8 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9',
+        VERSION:     '0.9.1-358-g3227453
+',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="top" title="Luabind 0.9.1-358-g3227453
+ documentation" href="index.html" />
     <link rel="next" title="Exceptions" href="exceptions.html" />
     <link rel="prev" title="Object" href="object.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -319,13 +322,14 @@ separated from the C++ base part. This means that if you call virtual
 functions on that C++ object, they will not be dispatched to the lua
 class. It also means that if you adopt the object, the lua part will be
 garbage collected.</p>
-<div class="highlight-lua"><pre>+--------------------+
+<div class="highlight-lua"><div class="highlight"><pre>+--------------------+
 | C++ object         |    &lt;- ownership of this part is transferred
 |                    |       to c++ when adopted
 +--------------------+
 | lua class instance |    &lt;- this part is garbage collected when
 | and lua members    |       instance is adopted, since it cannot
-+--------------------+       be held by c++.</pre>
++--------------------+       be held by c++.
+</pre></div>
 </div>
 <p>The problem can be illustrated by this example:</p>
 <div class="highlight-c++"><div class="highlight"><pre><span class="k">struct</span> <span class="n">A</span> <span class="p">{};</span>
@@ -416,7 +420,7 @@ an object not owned by lua is being adopted to C++.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2005 Rasterbar Software; 2013 Christian Neumüller.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

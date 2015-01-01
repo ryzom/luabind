@@ -6,7 +6,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Basic usage &mdash; Luabind 0.9 documentation</title>
+    <title>Basic usage &mdash; Luabind 0.9.1-358-g3227453
+ documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +15,8 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9',
+        VERSION:     '0.9.1-358-g3227453
+',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="top" title="Luabind 0.9.1-358-g3227453
+ documentation" href="index.html" />
     <link rel="next" title="Scopes" href="scopes.html" />
     <link rel="prev" title="Building luabind" href="building.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -56,12 +59,13 @@
   <div class="section" id="basic-usage">
 <h1>Basic usage<a class="headerlink" href="#basic-usage" title="Permalink to this headline">¶</a></h1>
 <p>To use luabind, you must include <tt class="docutils literal"><span class="pre">lua.h</span></tt> and luabind&#8217;s main header file:</p>
-<div class="highlight-c++"><pre>extern "C"
+<div class="highlight-c++"><div class="highlight"><pre>extern &quot;C&quot;
 {
-    #include "lua.h"
+    #include &quot;lua.h&quot;
 }
 
-#include &lt;luabind/luabind.hpp&gt;</pre>
+#include &lt;luabind/luabind.hpp&gt;
+</pre></div>
 </div>
 <p>This includes support for both registering classes and functions. If you just
 want to have support for functions or classes you can include
@@ -106,11 +110,12 @@ Lua header, you can modify this file.</p>
 <span class="p">}</span>
 </pre></div>
 </div>
-<div class="highlight-lua"><pre>Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
-&gt; loadlib('hello_world.dll', 'init')()
+<div class="highlight-lua"><div class="highlight"><pre>Lua 5.0  Copyright (C) 1994-2003 Tecgraf, PUC-Rio
+&gt; loadlib(&#39;hello_world.dll&#39;, &#39;init&#39;)()
 &gt; greet()
 Hello world!
-&gt;</pre>
+&gt;
+</pre></div>
 </div>
 </div>
 </div>
@@ -166,7 +171,7 @@ Hello world!
     </div>
     <div class="footer">
         &copy; Copyright 2005 Rasterbar Software; 2013 Christian Neumüller.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>

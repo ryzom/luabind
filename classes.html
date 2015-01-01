@@ -6,7 +6,8 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Binding classes to Lua &mdash; Luabind 0.9 documentation</title>
+    <title>Binding classes to Lua &mdash; Luabind 0.9.1-358-g3227453
+ documentation</title>
     
     <link rel="stylesheet" href="_static/pyramid.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
@@ -14,7 +15,8 @@
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    './',
-        VERSION:     '0.9',
+        VERSION:     '0.9.1-358-g3227453
+',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
@@ -23,7 +25,8 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="Luabind 0.9 documentation" href="index.html" />
+    <link rel="top" title="Luabind 0.9.1-358-g3227453
+ documentation" href="index.html" />
     <link rel="next" title="Adding converters for user defined types" href="userdefined-converters.html" />
     <link rel="prev" title="Binding functions to Lua" href="functions.html" />
 <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Neuton&amp;subset=latin" type="text/css" media="screen" charset="utf-8" />
@@ -270,9 +273,18 @@ module(L)
 <pre class="literal-block">
 +    -    *    /    ==    &lt;    &lt;=    %
 </pre>
-<p>This means, no in-place operators. The equality operator (<tt class="docutils literal"><span class="pre">==</span></tt>) has a little
-hitch; it will not be called if the references are equal. This means that the
-<tt class="docutils literal"><span class="pre">==</span></tt> operator has to do pretty much what&#8217;s it&#8217;s expected to do.</p>
+<p>This means, no in-place operators.</p>
+<p>Default implementations (described below) are provided for <cite>==</cite> and the
+special <cite>__tostring</cite> pseudo-operator. If any other operator is called, Luabind
+will trigger an error (&#8220;[const] class &lt;type&gt;: no &lt;metamethod name&gt; defined.&#8221;,
+e.g. &#8220;class vec: no __div operator defined.&#8221;).</p>
+<p>The equality operator (<tt class="docutils literal"><span class="pre">==</span></tt>) has a little hitch; it will not be called if
+the references are equal. This means that the <tt class="docutils literal"><span class="pre">==</span></tt> operator has to do pretty
+much what&#8217;s it&#8217;s expected to do.</p>
+<p>For Luabind&#8217;s default <cite>==</cite> operator, two objects are equal only if they are
+both objects of Luabind-exported classes and have the same addresses, after
+casting both to a common base if neccessary. If they do not have a common
+base (and are not of the same type), they compare unequal.</p>
 <p>Lua does not support operators such as <tt class="docutils literal"><span class="pre">!=</span></tt>, <tt class="docutils literal"><span class="pre">&gt;</span></tt> or <tt class="docutils literal"><span class="pre">&gt;=</span></tt>. That&#8217;s why you
 can only register the operators listed above. When you invoke one of the
 mentioned operators, lua will define it in terms of one of the available
@@ -326,8 +338,10 @@ module(L)
 which result in strings of the form <tt class="docutils literal"><span class="pre">[const]</span> <span class="pre">&lt;type&gt;</span> <span class="pre">object:</span> <span class="pre">&lt;address&gt;</span></tt>, i.e.
 <tt class="docutils literal"><span class="pre">const</span></tt> is prepended if the object is const, <tt class="docutils literal"><span class="pre">&lt;type&gt;</span></tt> will be the string
 you supplied to <tt class="docutils literal"><span class="pre">class_</span></tt> (or a string derived from <cite>std::type_info::name</cite>
-for unnamed classes) and <tt class="docutils literal"><span class="pre">&lt;address&gt;</span></tt> will be the address of the Lua userdata
-(meaning that different addresses could refer to the same C++ object).</p>
+for unnamed classes) and <tt class="docutils literal"><span class="pre">&lt;address&gt;</span></tt> will be the address of the C++ object.
+(Note that in multiple inheritance scenarios where the same object is pushed
+as multiple different base types, the addresses returned for the same
+most-derived object will differ).</p>
 </div>
 <div class="section" id="nested-scopes-and-static-functions">
 <h2>Nested scopes and static functions<a class="headerlink" href="#nested-scopes-and-static-functions" title="Permalink to this headline">¶</a></h2>
@@ -670,7 +684,7 @@ units.</p>
     </div>
     <div class="footer">
         &copy; Copyright 2005 Rasterbar Software; 2013 Christian Neumüller.
-      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2b1.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.2.
     </div>
   </body>
 </html>
