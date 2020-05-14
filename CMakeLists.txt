@@ -194,6 +194,7 @@ else()
         if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             list(APPEND possible_flags
                 Weverything
+                Wno-unused-local-typedef
                 Wno-shadow
                 Wno-undef
                 Wno-global-constructors
