@@ -194,10 +194,10 @@ else()
         if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             list(APPEND possible_flags
                 Weverything
+                Wno-unused-local-typedef
                 Wno-shadow
                 Wno-undef
                 Wno-global-constructors
-                Wno-zero-as-nullpointer
                 Wno-weak-vtables
                 Wno-padded
                 Wno-exit-time-destructors
@@ -205,6 +205,7 @@ else()
 
             if(LUABIND_USE_CXX11)
                list(APPEND possible_flags
+                    Wno-zero-as-nullpointer
                     Wno-c++98-compat
                     Wno-c++98-compat-pedantic)
             else()
