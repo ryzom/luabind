@@ -194,7 +194,6 @@ else()
         if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
             list(APPEND possible_flags
                 Weverything
-                Wno-unused-local-typedef
                 Wno-shadow
                 Wno-undef
                 Wno-global-constructors
@@ -230,7 +229,7 @@ endif()
 include_directories(BEFORE
     "${CMAKE_CURRENT_SOURCE_DIR}"
     "${CMAKE_CURRENT_BINARY_DIR}")
-include_directories(AFTER
+include_directories(AFTER SYSTEM
     ${Boost_INCLUDE_DIRS}
     ${LUA_INCLUDE_DIRS})
 
