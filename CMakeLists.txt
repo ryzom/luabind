@@ -114,6 +114,11 @@ set(BUILD_SHARED_LIBS ${LUABIND_DYNAMIC_LINK})
 
 if(LUABIND_USE_CXX11 AND LUABIND_CXX11_COMPILER_FLAGS)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LUABIND_CXX11_COMPILER_FLAGS}")
+elseif(NOT LUABIND_USE_CXX11 AND NOT MSVC)
+    check_cxx_compiler_flag(-std=c++98 LUABIND_HAS_CXX98FLAG)
+    if (LUABIND_HAS_CXX98FLAG)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
+    endif()
 endif()
 
 # Test and enable warning flags if desired, as well as other compiler flag
@@ -192,6 +197,7 @@ else()
                 Wno-shadow
                 Wno-undef
                 Wno-global-constructors
+                Wno-zero-as-nullpointer
                 Wno-weak-vtables
                 Wno-padded
                 Wno-exit-time-destructors
