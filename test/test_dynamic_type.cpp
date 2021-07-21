@@ -4,6 +4,7 @@
 
 #include "test.hpp"
 #include <luabind/luabind.hpp>
+#include <luabind/luabind_memory.hpp>
 
 namespace {
 
@@ -43,14 +44,14 @@ struct Unregistered : Base
     {}
 };
 
-std::auto_ptr<Base> make_derived()
+luabind::unique_ptr<Base> make_derived()
 {
-    return std::auto_ptr<Base>(new Derived);
+    return luabind::unique_ptr<Base>(new Derived);
 }
 
-std::auto_ptr<Base> make_unregistered()
+luabind::unique_ptr<Base> make_unregistered()
 {
-    return std::auto_ptr<Base>(new Unregistered);
+    return luabind::unique_ptr<Base>(new Unregistered);
 }
 
 } // namespace unnamed

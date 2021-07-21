@@ -55,6 +55,7 @@ set(LUABIND_API
     ../luabind/luabind.hpp
     ../luabind/lua_include.hpp
     ../luabind/lua_state_fwd.hpp
+    ../luabind/luabind_memory.hpp
     ../luabind/make_function.hpp
     ../luabind/nil.hpp
     ../luabind/no_dependency.hpp

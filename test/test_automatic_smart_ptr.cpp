@@ -4,6 +4,7 @@
 
 #include "test.hpp"
 #include <luabind/luabind.hpp>
+#include <luabind/luabind_memory.hpp>
 #include <boost/shared_ptr.hpp>
 
 namespace {
@@ -58,10 +59,9 @@ X* get_pointer(ptr const& p)
 {
     return p.p;
 }
-
-std::auto_ptr<X> make1()
+luabind::unique_ptr<X> make1()
 {
-    return std::auto_ptr<X>(new X(1));
+    return luabind::unique_ptr<X>(new X(1));
 }
 
 boost::shared_ptr<X> make2()

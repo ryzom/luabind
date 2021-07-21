@@ -25,7 +25,7 @@
 #include <luabind/detail/debug.hpp>
 #include <luabind/detail/stack_utils.hpp>
 #include <luabind/scope.hpp>
-
+#include <luabind/luabind_memory.hpp>
 #include <luabind/lua_include.hpp>
 
 #include <cassert>
@@ -48,8 +48,7 @@ namespace luabind { namespace detail {
         : m_chain(0)
     {
     }
-
-    scope::scope(std::auto_ptr<detail::registration> reg)
+    scope::scope(luabind::unique_ptr<detail::registration> reg)
         : m_chain(reg.release())
     {
     }
@@ -199,7 +198,7 @@ namespace luabind {
     };
 
     namespace_::namespace_(char const* name)
-        : scope(std::auto_ptr<detail::registration>(
+         : scope(luabind::unique_ptr<detail::registration>(
               m_registration = new registration_(name)))
     {
     }

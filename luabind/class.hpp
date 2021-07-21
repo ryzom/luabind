@@ -87,6 +87,7 @@
 #include <luabind/detail/signature_match.hpp>
 #include <luabind/detail/typetraits.hpp>
 #include <luabind/function.hpp>
+#include <luabind/luabind_memory.hpp>
 #include <luabind/no_dependency.hpp>
 #include <luabind/scope.hpp>
 #include <luabind/typeid.hpp>
@@ -304,7 +305,7 @@ namespace luabind
         template <class T>
         struct default_pointer<null_type, T>
         {
-            typedef std::auto_ptr<T> type;
+            typedef luabind::unique_ptr<T> type;
         };
 
         template <class Class, class Pointer, class Signature, class Policies>

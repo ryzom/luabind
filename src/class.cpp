@@ -24,6 +24,7 @@
 
 #include <luabind/class.hpp>
 #include <luabind/config.hpp>
+#include <luabind/luabind_memory.hpp>
 #include <luabind/nil.hpp>
 
 #include <boost/foreach.hpp>
@@ -233,7 +234,7 @@ namespace luabind { namespace detail {
     // -- interface ---------------------------------------------------------
 
     class_base::class_base(char const* name_)
-        : scope(std::auto_ptr<registration>(
+         : scope(luabind::unique_ptr<registration>(
                 m_registration = new class_registration(name_))
           )
     {
@@ -256,14 +257,14 @@ namespace luabind { namespace detail {
 
     void class_base::add_member(registration* member)
     {
-        std::auto_ptr<registration> ptr(member);
-        m_registration->m_members.operator,(scope(ptr));
+        luabind::unique_ptr<registration> ptr(member);
+        m_registration->m_members.operator,(scope(luabind::move(ptr)));
     }
 
     void class_base::add_default_member(registration* member)
     {
-        std::auto_ptr<registration> ptr(member);
-        m_registration->m_default_members.operator,(scope(ptr));
+        luabind::unique_ptr<registration> ptr(member);
+        m_registration->m_default_members.operator,(scope(luabind::move(ptr)));
     }
 
     const char* class_base::name() const

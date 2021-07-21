@@ -24,6 +24,7 @@
 
 #include <luabind/adopt_policy.hpp>
 #include <luabind/luabind.hpp>
+#include <luabind/luabind_memory.hpp>
 #include <luabind/wrapper_base.hpp>
 
 #include <boost/shared_ptr.hpp>
@@ -343,15 +344,13 @@ void test_main(lua_State* L)
             call_function<void>(make_derived)
             );
     }
-
-    std::auto_ptr<base> own_ptr;
+    luabind::unique_ptr<base> own_ptr;
     {
         LUABIND_CHECK_STACK(L);
-
         TEST_NOTHROW(
-            own_ptr = std::auto_ptr<base>(
-                call_function<base*>(L, "make_derived") [ adopt(result) ])
-            );
+             own_ptr = luabind::unique_ptr<base>(
+                 call_function<base*>(L, "make_derived") [ adopt(result) ])
+             );
     }
 
     // make sure the derived lua-part is still referenced by
@@ -366,13 +365,12 @@ void test_main(lua_State* L)
     TEST_NOTHROW(
         TEST_CHECK(own_ptr->f() == "derived:f() : base:f()")
     );
-    own_ptr = std::auto_ptr<base>();
-
+    own_ptr = luabind::unique_ptr<base>();
     // test virtual functions that are not overridden by lua
     TEST_NOTHROW(
-        own_ptr = std::auto_ptr<base>(
+        own_ptr = luabind::unique_ptr<base>(
             call_function<base*>(L, "make_empty_derived") [ adopt(result) ])
-        );
+    );
     TEST_NOTHROW(
         TEST_CHECK(own_ptr->f() == "base:f()")
     );

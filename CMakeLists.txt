@@ -44,17 +44,25 @@ if(NOT LUA_FOUND AND NOT LUA51_FOUND AND NOT LUA52_FOUND)
     set(LUA_INCLUDE_DIRS "${LUA_INCLUDE_DIR}")
 endif()
 
+set(LUABIND_CPP_STANDARD "c++14" CACHE STRING "Choose the cpp version for the project, including c++03, c++11, c++14, c++17")
+set_property(CACHE LUABIND_CPP_STANDARD PROPERTY STRINGS c++03 c++11 c++14 c++17)
+
 if(NOT MSVC)
     check_cxx_compiler_flag(-std=c++11 LUABIND_HAS_CXX11)
-    if (LUABIND_HAS_CXX11)
-        set (LUABIND_CXX11_COMPILER_FLAGS "-std=c++11")
-    else()
-        message("Compiler does not support -std=c++11 flag, C++11 disabled.")
-    endif()
+    check_cxx_compiler_flag(-std=c++14 LUABIND_HAS_CXX14)
+    # if (LUABIND_HAS_CXX11)
+    #     set (LUABIND_CXX11_COMPILER_FLAGS "-std=c++11")
+    # elseif(LUABIND_HAS_CXX14)
+    #     set (LUABIND_CXX14_COMPILER_FLAGS "-std=c++14")
+    # else()
+    #     message("Compiler does not support -std=c++11 flag, C++11 disabled.")
+    # endif()
 elseif(MSVC_VERSION GREATER 1699) # 1700 = VS 11 (2012)
     set (LUABIND_HAS_CXX11 ON)
+    set (LUABIND_HAS_CXX14 ON)
 else()
     set (LUABIND_HAS_CXX11 OFF)
+    set (LUABIND_HAS_CXX14 OFF)
     message("MSVC < 11 (2012) detected, C++11 disabled.")
 endif()
 
@@ -68,11 +76,6 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     option(LUABIND_DYNAMIC_LINK "Build luabind as a shared library?" OFF)
     option(LUABIND_NOT_THREADSAFE "Permit the use of static variables, thus making Luabind usable only from one of your system threads." OFF)
     option(LUABIND_ENABLE_WARNINGS "Enable extra warnings during the build of the library and tests" ON)
-    if (LUABIND_HAS_CXX11)
-        option(LUABIND_USE_CXX11 "Build Luabind using C++11 features?" ON)
-    else()
-        set(LUABIND_USE_CXX11 OFF)
-    endif()
 
     if(Boost_VERSION LESS 104700)
         set(LUABIND_USE_NOEXCEPT_DEF OFF)
@@ -84,16 +87,16 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
         unset(LUABIND_USE_NOEXCEPT_DEF)
     endif()
 
-    if(LUABIND_USE_CXX11 AND NOT LUABIND_HAS_CXX11)
-        # The compiler supports no C++11
-        set(LUABIND_USE_CXX11 OFF CACHE BOOL "Build Luabind using C++11 features?" FORCE)
+    if( NOT(LUABIND_CPP_STANDARD STREQUAL "c++03") AND NOT (LUABIND_HAS_CXX11 OR LUABIND_HAS_CXX14 ) )
+        # The compiler supports no C++11 and C++14
+        set(LUABIND_CPP_STANDARD "c++03" CACHE STRING "Build Luabind using C++11 features?" FORCE)
     endif()
 
-    if(LUABIND_USE_CXX11)
+    if( NOT(LUABIND_CPP_STANDARD STREQUAL "c++03") )
         option(LUABIND_NO_SCOPED_ENUM "Indicates that your compiler and standard library lacks scoped enums and std::underlying_type" OFF)
         set(LUABIND_NO_STD_SHARED_PTR OFF)
     else()
-        # No CXX11, can't have scoped enum
+        # No CXX11 and CXX14 , can't have scoped enum
         # TODO is this right?
         #set(LUABIND_NO_SCOPED_ENUM ON CACHE INTERNAL "" FORCE)
         option(LUABIND_NO_STD_SHARED_PTR "Indicates that your standard library lacks C++11 shared_ptr in std namespace" ON)
@@ -112,11 +115,14 @@ configure_file(build_information.hpp.cmake_in "${CMAKE_CURRENT_BINARY_DIR}/luabi
 # Set up the build
 set(BUILD_SHARED_LIBS ${LUABIND_DYNAMIC_LINK})
 
-if(LUABIND_USE_CXX11 AND LUABIND_CXX11_COMPILER_FLAGS)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LUABIND_CXX11_COMPILER_FLAGS}")
-elseif(NOT LUABIND_USE_CXX11 AND NOT MSVC)
+if( NOT (LUABIND_CPP_STANDARD STREQUAL "c++03" ) )
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=${LUABIND_CPP_STANDARD}")
+else()
+    check_cxx_compiler_flag(-std=c++03 LUABIND_HAS_CXX03FLAG)
     check_cxx_compiler_flag(-std=c++98 LUABIND_HAS_CXX98FLAG)
-    if (LUABIND_HAS_CXX98FLAG)
+    if (LUABIND_HAS_CXX03FLAG)
+        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++03")
+    elseif(LUABIND_HAS_CXX98FLAG)
         set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++98")
     endif()
 endif()
@@ -187,7 +193,7 @@ else()
             Wstrict-overflow=5)
 
 
-        if(LUABIND_USE_CXX11)
+        if( NOT (LUABIND_CPP_STANDARD STREQUAL "c++03" ) )
             list(APPEND possible_flags Wnoexcept)
         endif()
 
@@ -203,7 +209,7 @@ else()
                 Wno-exit-time-destructors
                 Wno-missing-noreturn)
 
-            if(LUABIND_USE_CXX11)
+            if( NOT (LUABIND_CPP_STANDARD STREQUAL "c++03" ) )
                list(APPEND possible_flags
                     Wno-zero-as-nullpointer
                     Wno-c++98-compat
@@ -213,7 +219,7 @@ else()
                     Wno-c++11-long-long)
             endif()
 
-        elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND NOT LUABIND_USE_CXX11)
+        elseif( (CMAKE_CXX_COMPILER_ID STREQUAL "GNU") AND (LUABIND_CPP_STANDARD STREQUAL "c++03" ) )
             list(APPEND possible_flags Wno-long-long)
         endif()
 
