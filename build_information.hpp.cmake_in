@@ -51,5 +51,7 @@
 /// TODO does this actually change the ABI?
 #cmakedefine LUABIND_NO_SCOPED_ENUM 1
 
+#cmakedefine LUABIND_NO_STD_UNIQUE_PTR
+
 #endif // INCLUDED_BuildInformation_hpp_GUID_90CCCE9E_4374_4090_36BA_3AA2C22271F7
 

@@ -26,8 +26,6 @@
 # include <boost/type_traits/add_reference.hpp>
 # include <boost/mpl/bool.hpp>
 
-// Jlee 2021-07-21 not sure BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP,
-//  memory has already include in luabind_memory.hpp
 # include <luabind/luabind_memory.hpp>
 # ifndef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 #  include <memory>
@@ -63,6 +61,7 @@ namespace has_get_pointer_
 
   template<class T>
   T* get_pointer(luabind::unique_ptr<T> const&);
+
 # endif
 
 //

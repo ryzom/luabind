@@ -348,9 +348,9 @@ void test_main(lua_State* L)
     {
         LUABIND_CHECK_STACK(L);
         TEST_NOTHROW(
-             own_ptr = luabind::unique_ptr<base>(
-                 call_function<base*>(L, "make_derived") [ adopt(result) ])
-             );
+            own_ptr = luabind::unique_ptr<base>(
+                call_function<base*>(L, "make_derived") [ adopt(result) ])
+            );
     }
 
     // make sure the derived lua-part is still referenced by

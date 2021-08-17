@@ -7,7 +7,7 @@
 
 # include <luabind/detail/call_function.hpp>
 # include <luabind/make_function.hpp>
-#include <luabind/luabind_memory.hpp>
+# include <luabind/luabind_memory.hpp>
 # include <luabind/scope.hpp>
 
 namespace luabind {
@@ -45,8 +45,8 @@ namespace detail
 template <class F, class Policies>
 scope def(char const* name, F f, Policies const& policies)
 {
-  return scope(luabind::unique_ptr<detail::registration>(
-    new detail::function_registration<F, Policies>(name, f, policies)));
+    return scope(luabind::unique_ptr<detail::registration>(
+        new detail::function_registration<F, Policies>(name, f, policies)));
 }
 
 template <class F>

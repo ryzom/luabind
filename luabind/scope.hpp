@@ -66,14 +66,12 @@ namespace luabind {
 
         scope& operator=(scope const& other_);
 
-        /* Oberon00 2020-05-24
-        * Reading the implementation in scope.cpp of this, I'm concerned.
-        * Was a simple def("foo", &foo), def("bar", &bar) previously causing a double-delete?
-        * Would scope& without const work here, similar to
-        * https://en.cppreference.com/w/cpp/memory/auto_ptr/auto_ptr ? */
-        // Jlee 2021-07-21 Not sure this patch usage
-        // scope& operator,(scope s);
+#if __cplusplus >= 201103L
+        scope& operator,(scope&& s);
+        scope& operator,(scope& s);
+#else
         scope& operator,(const scope& s);
+#endif // __cplusplus >= 201103L
 
         void register_(lua_State* L) const;
 
