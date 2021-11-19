@@ -5,6 +5,15 @@
 
 cmake_minimum_required(VERSION 2.8.3)
 set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
+
+if(HUNTER_ENABLED)
+  INCLUDE("cmake/HunterGate.cmake")
+  HunterGate(
+    URL "https://github.com/cpp-pm/hunter/archive/v0.23.317.tar.gz"
+    SHA1 "fbdd94b1966d351384e27b02c8d134915b1131d6"
+  )
+endif()
+
 project(LuaBind)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -18,6 +27,15 @@ set(CPACK_PACKAGE_VERSION
 
 list(APPEND CMAKE_MODULE_PATH
     "${CMAKE_CURRENT_SOURCE_DIR}/cmake/Modules")
+
+if(HUNTER_ENABLED)
+  hunter_add_package(Boost)
+  hunter_add_package(Lua)
+  find_package(Boost CONFIG REQUIRED)
+  find_package(Lua CONFIG REQUIRED)
+  SET(LUA_FOUND TRUE)
+  SET(LUA_LIBRARIES Lua::lua_lib)
+endif()
 
 if(NOT Boost_FOUND)
     set(Boost_USE_STATIC_LIBS     ON)
