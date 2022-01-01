@@ -92,11 +92,13 @@ if(CMAKE_CURRENT_SOURCE_DIR STREQUAL CMAKE_SOURCE_DIR)
     if(LUABIND_USE_CXX11)
         option(LUABIND_NO_SCOPED_ENUM "Indicates that your compiler and standard library lacks scoped enums and std::underlying_type" OFF)
         set(LUABIND_NO_STD_SHARED_PTR OFF)
+        option(LUABIND_NO_STD_UNIQUE_PTR "Don't use std::unique_ptr (falls back on std::auto_ptr)" OFF)
     else()
         # No CXX11, can't have scoped enum
         # TODO is this right?
         #set(LUABIND_NO_SCOPED_ENUM ON CACHE INTERNAL "" FORCE)
         option(LUABIND_NO_STD_SHARED_PTR "Indicates that your standard library lacks C++11 shared_ptr in std namespace" ON)
+        set(LUABIND_NO_STD_UNIQUE_PTR ON CACHE BOOL "Don't use std::unique_ptr (falls back on std::auto_ptr)" FORCE)
     endif()
 
 endif()

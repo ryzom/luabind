@@ -7,6 +7,7 @@
 
 # include <luabind/detail/inheritance.hpp>
 # include <luabind/get_pointer.hpp>
+# include <luabind/luabind_memory.hpp>
 # include <luabind/typeid.hpp>
 
 # include <boost/type_traits/is_polymorphic.hpp>
@@ -52,7 +53,7 @@ inline mpl::true_ check_const_pointer(void const*)
 }
 
 template <class T>
-void release_ownership(std::auto_ptr<T>& p)
+void release_ownership(luabind::unique_ptr<T>& p)
 {
     p.release();
 }
@@ -78,7 +79,7 @@ public:
         P p, class_id dynamic_id, void* dynamic_ptr
     )
       : instance_holder(check_const_pointer(false ? get_pointer(p) : 0))
-      , m_p(p)
+      , m_p(luabind::move(p))
       , m_weak(0)
       , m_dynamic_id(dynamic_id)
       , m_dynamic_ptr(dynamic_ptr)

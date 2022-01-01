@@ -27,6 +27,7 @@
 #include <luabind/back_reference_fwd.hpp>
 #include <luabind/config.hpp>
 #include <luabind/detail/policy.hpp>
+#include <luabind/luabind_memory.hpp>
 #include <luabind/wrapper_base.hpp>
 
 #include <boost/type_traits/is_polymorphic.hpp>
@@ -96,7 +97,7 @@ namespace luabind { namespace detail
     template <class T>
     struct pointer_or_default<void, T>
     {
-        typedef std::auto_ptr<T> type;
+        typedef luabind::unique_ptr<T> type;
     };
 
     template <class Pointer>

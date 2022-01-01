@@ -59,6 +59,7 @@
 #include <luabind/detail/primitives.hpp>
 #include <luabind/detail/typetraits.hpp>
 #include <luabind/from_stack.hpp>
+#include <luabind/luabind_memory.hpp>
 #include <luabind/value_wrapper.hpp>
 #include <luabind/weak_ref.hpp>
 
@@ -178,7 +179,7 @@ namespace luabind { namespace detail
     {
         if (get_pointer(x))
         {
-            make_instance(L, x);
+            make_instance(L, luabind::move(x));
         }
         else
         {
@@ -189,8 +190,8 @@ namespace luabind { namespace detail
     template <class T>
     void make_pointee_instance(lua_State* L, T& x, mpl::false_, mpl::true_)
     {
-        std::auto_ptr<T> ptr(new T(x));
-        make_instance(L, ptr);
+        luabind::unique_ptr<T> ptr(new T(x));
+        make_instance(L, luabind::move(ptr));
     }
 
     template <class T>

@@ -26,6 +26,7 @@
 # include <boost/type_traits/add_reference.hpp>
 # include <boost/mpl/bool.hpp>
 
+# include <luabind/luabind_memory.hpp>
 # ifndef BOOST_NO_ARGUMENT_DEPENDENT_LOOKUP
 #  include <memory>
 # endif
@@ -59,7 +60,7 @@ namespace has_get_pointer_
   T* get_pointer(T const volatile*);
 
   template<class T>
-  T* get_pointer(std::auto_ptr<T> const&);
+  T* get_pointer(luabind::unique_ptr<T> const&);
 
 # endif
 

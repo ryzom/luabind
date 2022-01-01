@@ -24,6 +24,7 @@
 
 #include <luabind/class.hpp>
 #include <luabind/config.hpp>
+#include <luabind/luabind_memory.hpp>
 #include <luabind/nil.hpp>
 
 #include <boost/foreach.hpp>
@@ -233,7 +234,7 @@ namespace luabind { namespace detail {
     // -- interface ---------------------------------------------------------
 
     class_base::class_base(char const* name_)
-        : scope(std::auto_ptr<registration>(
+        : scope(luabind::unique_ptr<registration>(
                 m_registration = new class_registration(name_))
           )
     {
@@ -256,14 +257,27 @@ namespace luabind { namespace detail {
 
     void class_base::add_member(registration* member)
     {
-        std::auto_ptr<registration> ptr(member);
-        m_registration->m_members.operator,(scope(ptr));
+        luabind::unique_ptr<registration> ptr(member);
+
+#if __cplusplus < 201103L
+        // Jlee - This definition is for solving the following error
+        // error: cannot bind non-const lvalue reference of type 'luabind::scope&' to an rvalue of type 'luabind::scope'
+        scope tmp(luabind::move(ptr));
+        m_registration->m_members.operator,(tmp);
+#else
+        m_registration->m_members.operator,(scope(luabind::move(ptr)));
+#endif // __cplusplus < 201103L
     }
 
     void class_base::add_default_member(registration* member)
     {
-        std::auto_ptr<registration> ptr(member);
-        m_registration->m_default_members.operator,(scope(ptr));
+        luabind::unique_ptr<registration> ptr(member);
+        #if __cplusplus < 201103L
+          scope tmp(luabind::move(ptr));
+          m_registration->m_default_members.operator,(tmp);
+        #else
+          m_registration->m_default_members.operator,(scope(luabind::move(ptr)));
+        #endif
     }
 
     const char* class_base::name() const
@@ -278,7 +292,7 @@ namespace luabind { namespace detail {
 
     void class_base::add_inner_scope(scope& s)
     {
-        m_registration->m_scope.operator,(s);
+        m_registration->m_scope.operator,(luabind::move(s));
     }
 
     void class_base::add_cast(

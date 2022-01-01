@@ -7,6 +7,7 @@
 
 # include <luabind/detail/inheritance.hpp>
 # include <luabind/detail/object_rep.hpp>
+# include <luabind/luabind_memory.hpp>
 
 # include <boost/type_traits/is_polymorphic.hpp>
 
@@ -89,7 +90,7 @@ void make_instance(lua_State* L, P p)
 
     try
     {
-        new (storage) holder_type(p, dynamic.first, dynamic.second);
+        new (storage) holder_type(luabind::move(p), dynamic.first, dynamic.second);
     }
     catch (...)
     {
