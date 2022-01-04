@@ -3,8 +3,7 @@
 # http://academic.cleardefinition.com/
 # Iowa State University HCI Graduate Program/VRAC
 
-cmake_minimum_required(VERSION 2.8.3)
-set(CMAKE_LEGACY_CYGWIN_WIN32 0) # Remove when CMake >= 2.8.4 is required
+cmake_minimum_required(VERSION 3.22.1)
 project(LuaBind)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -26,19 +25,16 @@ if(NOT Boost_FOUND)
     find_package(Boost REQUIRED)
 endif()
 
-if(NOT LUA_FOUND AND NOT LUA51_FOUND AND NOT LUA52_FOUND)
+if(NOT LUA_FOUND)
     set(LUABIND_LUA_VERSION "" CACHE STRING
-        "51 or 52; empty to use 51 if 52 cannot be found and 52 otherwise.")
+        "51 or 52 or 53 or 54; empty to use 51 if other cannot be found.")
 
     if(LUABIND_LUA_VERSION)
         find_package("Lua${LUABIND_LUA_VERSION}" REQUIRED)
     else()
-        find_package(Lua52)
-        if(NOT LUA52_FOUND)
-            find_package(Lua51)
-            if(NOT LUA51_FOUND)
-                message(FATAL_ERROR "Neither Lua 5.1 nor 5.2 could be found.")
-            endif()
+        find_package(Lua)
+        if(NOT LUA_FOUND)
+            message(FATAL_ERROR "Lua could not be found.")
         endif()
     endif()
     set(LUA_INCLUDE_DIRS "${LUA_INCLUDE_DIR}")
@@ -253,9 +249,7 @@ if(LUABIND_INSTALL)
         set(INSTALL_CMAKE_DIR_LUA CMake)
     else()
         set(INSTALL_CMAKE_DIR lib/CMake/Luabind)
-        set(INSTALL_CMAKE_DIR_LUA lib/CMake/Lua52)
     endif()
     install(FILES "cmake/Modules/FindLuabind.cmake" DESTINATION ${INSTALL_CMAKE_DIR})
-    install(FILES "cmake/Modules/FindLua52.cmake" DESTINATION ${INSTALL_CMAKE_DIR_LUA})
     install(FILES "${CMAKE_CURRENT_BINARY_DIR}/luabind/build_information.hpp" DESTINATION include/luabind)
 endif()
