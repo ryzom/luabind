@@ -90,8 +90,7 @@ luabind release (0.9) are described.
 
 * CMake replaces the broken Jamfile as build system (including installation
   and test support).
-  A [`FindLuabind.cmake`][findluabind] file is also provided, as well as
-  [`FindLua52.cmake`][findlua52].
+  A [`FindLuabind.cmake`][findluabind] file is also provided.
 * A bit of C++11 support:
     + `std::shared_ptr` is supported as smart pointer through
       [`luabind/std_shared_ptr_converter.hpp`][stdptr].
