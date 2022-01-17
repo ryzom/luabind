@@ -3,7 +3,7 @@
 # http://academic.cleardefinition.com/
 # Iowa State University HCI Graduate Program/VRAC
 
-cmake_minimum_required(VERSION 3.22.1)
+cmake_minimum_required(VERSION 3.18.0)
 project(LuaBind)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
