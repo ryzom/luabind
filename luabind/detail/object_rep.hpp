@@ -97,8 +97,10 @@ namespace luabind { namespace detail
 
         void operator=(object_rep const&);
 
+        struct cD { char c; union { LUAI_MAXALIGN; } u; };
         BOOST_STATIC_CONSTANT(std::size_t, instance_buffer_size=32);
-        boost::aligned_storage<instance_buffer_size> m_instance_buffer;
+        BOOST_STATIC_CONSTANT(std::size_t, instance_buffer_align=offsetof(struct cD, u));
+        boost::aligned_storage<instance_buffer_size, instance_buffer_align> m_instance_buffer;
         instance_holder* m_instance;
         class_rep* m_classrep; // the class information about this object's type
         std::size_t m_dependency_cnt; // counts dependencies
