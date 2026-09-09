@@ -138,8 +138,15 @@ namespace std
 # define LUABIND_CDECL
 #endif
 
-// VC6: default template argument `void` is C2182. Use this dummy instead.
+// VC6: default template argument `void` is C2182. Use a dummy there.
+// Everywhere else this must stay `void` so enable_if<>::type SFINAE
+// specializations of default_converter / signature_aux still match
+// (VS2008, VS2022, gcc/clang).
+#if defined(BOOST_MSVC) && (BOOST_MSVC <= 1200)
 struct luabind_unspecified {};
+#else
+typedef void luabind_unspecified;
+#endif
 
 // C++11 features //
 //
@@ -149,9 +156,10 @@ struct luabind_unspecified {};
 #ifndef LUABIND_NO_SCOPED_ENUM
 #if (   defined(BOOST_NO_CXX11_SCOPED_ENUMS) \
      || defined(BOOST_NO_SCOPED_ENUMS) \
-     || defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS) \
-     || defined(BOOST_NO_0X_HDR_TYPE_TRAITS) \
-     || (defined(BOOST_MSVC) && (BOOST_MSVC < 1700)) \
+     || ((BOOST_VERSION < 105600) \
+         && (   defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS) \
+             || defined(BOOST_NO_0X_HDR_TYPE_TRAITS))) \
+     || (defined(BOOST_MSVC) && (BOOST_MSVC <= 1200)) \
      || (BOOST_VERSION < 104700))
 #    define LUABIND_NO_SCOPED_ENUM
 #endif

@@ -41,7 +41,10 @@ T* get_pointer(luabind::unique_ptr<T, Deleter> const& ptr)
 {
     return ptr.get();
 }
-#else
+#elif defined(BOOST_MSVC) && (BOOST_MSVC <= 1200)
+// VC6 wrapper class in luabind_memory.hpp. Do not provide this when
+// unique_ptr is the auto_ptr macro (VS2008 / C++03 gcc): that expands
+// to luabind::auto_ptr, which does not exist.
 template <class T>
 T* get_pointer(luabind::unique_ptr<T> const& ptr)
 {

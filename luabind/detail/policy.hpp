@@ -1069,18 +1069,20 @@ namespace detail
         static void apply(lua_State*, int) {}
     };
 
+#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     // Nested apply rather than has_policy<null_type, Sought> partial spec
-    // (VC6) or eval_if (VC6 still instantiates Policies::head).
+    // (VC6 still instantiates Policies::head inside eval_if).
     template <class Policies>
     struct has_policy_impl
     {
         template <class Sought>
         struct apply
-          : mpl::eval_if<
+          : mpl::if_<
                 boost::is_same<LUABIND_MSVC_TYPENAME Policies::head, Sought>
               , mpl::true_
-              , has_policy_impl<LUABIND_MSVC_TYPENAME Policies::tail>
-                    ::BOOST_NESTED_TEMPLATE apply<Sought>
+              , LUABIND_MSVC_TYPENAME has_policy_impl<
+                    LUABIND_MSVC_TYPENAME Policies::tail
+                >::BOOST_NESTED_TEMPLATE apply<Sought>
             >::type
         {};
     };
@@ -1096,6 +1098,21 @@ namespace detail
     struct has_policy
       : has_policy_impl<Policies>::BOOST_NESTED_TEMPLATE apply<Sought>
     {};
+#else
+    template <class Policies, class Sought>
+    struct has_policy
+      : mpl::if_<
+            boost::is_same<typename Policies::head, Sought>
+          , mpl::true_
+          , has_policy<typename Policies::tail, Sought>
+        >::type
+    {};
+
+    template <class Sought>
+    struct has_policy<null_type, Sought>
+      : mpl::false_
+    {};
+#endif
 
 }} // namespace luabind::detail
 

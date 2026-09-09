@@ -87,11 +87,14 @@ LUABIND_INTEGRAL_TYPE_TO_STRING(short)
 LUABIND_INTEGRAL_TYPE_TO_STRING(int)
 LUABIND_INTEGRAL_TYPE_TO_STRING(long)
 
-#if !defined(BOOST_NO_LONG_LONG) && !defined(BOOST_MSVC)
-    LUABIND_INTEGRAL_TYPE_TO_STRING(long long)
-#elif defined(BOOST_MSVC) && (BOOST_MSVC <= 1200) && defined(_MSC_EXTENSIONS)
+#if defined(BOOST_MSVC) && (BOOST_MSVC <= 1200)
+    // cl 12.00 has no `long long` keyword; Boost 1.34 also omits BOOST_NO_LONG_LONG.
+# if defined(_MSC_EXTENSIONS)
     LUABIND_TYPE_TO_STRING(__int64)
     LUABIND_TYPE_TO_STRING(unsigned __int64)
+# endif
+#elif !defined(BOOST_NO_LONG_LONG)
+    LUABIND_INTEGRAL_TYPE_TO_STRING(long long)
 #endif
 
 LUABIND_TYPE_TO_STRING(void)
