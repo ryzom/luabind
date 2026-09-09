@@ -37,11 +37,25 @@ namespace detail
       F f;
   };
 
+#ifndef LUABIND_NO_BOOST_FUNCTION_TYPES
   template <class Signature, class F>
   struct signature_aux<tagged_function<Signature, F> >
   {
       typedef Signature type;
   };
+#else
+  template <class Signature, class F>
+  Signature deduce_signature(tagged_function<Signature, F> const&, ...)
+  {
+      return Signature();
+  }
+
+  template <class Signature, class F, class Wrapped>
+  Signature deduce_signature(tagged_function<Signature, F> const&, Wrapped*)
+  {
+      return Signature();
+  }
+#endif
 
   template <class Signature, class F, class SignatureSeq, class Policies>
   int invoke(

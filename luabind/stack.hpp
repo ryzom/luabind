@@ -9,7 +9,7 @@
 #include <boost/implicit_cast.hpp>
 #include <boost/mpl/if.hpp>
 #include <boost/mpl/apply_wrap.hpp>
-#include <boost/optional/optional.hpp>
+#include <luabind/detail/boost_optional.hpp>
 
 namespace luabind
 {
@@ -48,7 +48,7 @@ void push(lua_State* L, T& value, Policies const&)
       , Policies
     >::type converter_policy;
 
-    push_aux(L, value, static_cast<converter_policy*>(0));
+    detail::push_aux(L, value, static_cast<converter_policy*>(0));
 }
 
 template<class T>

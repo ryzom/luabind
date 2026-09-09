@@ -132,19 +132,45 @@ namespace std
 # define LUABIND_API
 #endif
 
-// C++11 features //
-
-#if (   defined(BOOST_NO_CXX11_SCOPED_ENUMS) \
-     || defined(BOOST_NO_SCOPED_ENUMS)                 \
-     || BOOST_VERSION < 105600                         \
-        && (   defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS) \
-            || defined(BOOST_NO_0X_HDR_TYPE_TRAITS)))
-#    define LUABIND_NO_SCOPED_ENUM
+#if defined(BOOST_MSVC)
+# define LUABIND_CDECL __cdecl
+#else
+# define LUABIND_CDECL
 #endif
 
+// VC6: default template argument `void` is C2182. Use this dummy instead.
+struct luabind_unspecified {};
+
+// C++11 features //
+//
+// Old Boost (< 1.47) does not define BOOST_NO_CXX11_HDR_TYPE_TRAITS, so a
+// naive "Boost is old AND the NO_ macro is set" test is false on VC6 — then
+// policy.hpp includes STLport 5.2's C++0x <type_traits>, which ICEs cl 12.00.
+#ifndef LUABIND_NO_SCOPED_ENUM
+#if (   defined(BOOST_NO_CXX11_SCOPED_ENUMS) \
+     || defined(BOOST_NO_SCOPED_ENUMS) \
+     || defined(BOOST_NO_CXX11_HDR_TYPE_TRAITS) \
+     || defined(BOOST_NO_0X_HDR_TYPE_TRAITS) \
+     || (defined(BOOST_MSVC) && (BOOST_MSVC < 1700)) \
+     || (BOOST_VERSION < 104700))
+#    define LUABIND_NO_SCOPED_ENUM
+#endif
+#endif
+
+#ifndef LUABIND_NO_RVALUE_REFERENCES
 #if (   defined(BOOST_NO_CXX11_RVALUE_REFERENCES) \
-     || defined(BOOST_NO_RVALUE_REFERENCES))
+     || defined(BOOST_NO_RVALUE_REFERENCES) \
+     || (defined(BOOST_MSVC) && (BOOST_MSVC < 1600)))
 #    define LUABIND_NO_RVALUE_REFERENCES
+#endif
+#endif
+
+// Boost.FunctionTypes shipped in 1.35. VC6 also lacks the partial
+// specializations that the FunctionTypes-based deduce_signature uses.
+#ifndef LUABIND_NO_BOOST_FUNCTION_TYPES
+# if (BOOST_VERSION < 103500) || defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
+#  define LUABIND_NO_BOOST_FUNCTION_TYPES
+# endif
 #endif
 
 // If you use Boost <= 1.46 but your compiler is C++11 compliant and marks

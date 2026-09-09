@@ -26,7 +26,7 @@ namespace detail
 
 } // namespace detail
 
-detail::no_dependency_node const no_dependency = {};
+detail::no_dependency_node const no_dependency = detail::no_dependency_node();
 
 namespace detail
 {

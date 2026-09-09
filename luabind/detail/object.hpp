@@ -169,7 +169,7 @@ namespace adl
 LUABIND_BINARY_OP_DEF(==, LUA_OPEQ)
 LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
 
-  inline int value_to_string(lua_State* L)
+  inline int LUABIND_CDECL value_to_string(lua_State* L)
   {
       assert(lua_gettop(L) == 1);
       luaL_tolstring(L, 1, 0);
@@ -318,12 +318,12 @@ LUABIND_BINARY_OP_DEF(<, LUA_OPLT)
       typedef iterator_proxy_tag value_wrapper_tag;
 #endif
 
-      iterator_proxy(lua_State* L, handle const& table, handle const& key)
+      iterator_proxy(lua_State* L, handle const& table_handle, handle const& key)
         : m_interpreter(L)
         , m_table_index(lua_gettop(L) + 1)
         , m_key_index(m_table_index + 1)
       {
-          table.push(m_interpreter);
+          table_handle.push(m_interpreter);
           key.push(m_interpreter);
       }
 
@@ -538,6 +538,7 @@ namespace adl
 
 #ifdef LUABIND_USE_VALUE_WRAPPER_TAG
   struct index_proxy_tag;
+  struct call_proxy_tag;
 #endif
 
   template<class Next>
@@ -962,9 +963,16 @@ namespace detail
 namespace adl
 {
 
+#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
+  struct call_proxy_tag;
+#endif
+
   template<class ValueWrapper, class Arguments>
   struct call_proxy
   {
+#ifdef LUABIND_USE_VALUE_WRAPPER_TAG
+      typedef call_proxy_tag value_wrapper_tag;
+#endif
       call_proxy(ValueWrapper& wrapper, Arguments args)
         : value_wrapper(&wrapper)
         , arguments(args)
@@ -1057,6 +1065,7 @@ namespace adl
 
 using adl::table;
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <class Base>
 struct value_wrapper_traits<adl::table<Base> >
   : value_wrapper_traits<Base>
@@ -1067,6 +1076,7 @@ struct value_wrapper_traits<adl::table<Base> >
             lua_istable(L, idx);
     }
 };
+#endif
 
 inline object newtable(lua_State* interpreter)
 {
@@ -1092,13 +1102,13 @@ inline object registry(lua_State* interpreter)
 }
 
 template<class ValueWrapper, class K>
-inline object gettable(ValueWrapper const& table, K const& key)
+inline object gettable(ValueWrapper const& wrapper, K const& key)
 {
     lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter(
-        table
+        wrapper
     );
 
-    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, table);
+    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, wrapper);
     detail::stack_pop pop(interpreter, 2);
     push(interpreter, key);
     lua_gettable(interpreter, -2);
@@ -1106,15 +1116,15 @@ inline object gettable(ValueWrapper const& table, K const& key)
 }
 
 template<class ValueWrapper, class K, class T>
-inline void settable(ValueWrapper const& table, K const& key, T const& value)
+inline void settable(ValueWrapper const& wrapper, K const& key, T const& value)
 {
     lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter(
-        table
+        wrapper
     );
 
     // TODO: Exception safe?
 
-    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, table);
+    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, wrapper);
     detail::stack_pop pop(interpreter, 1);
     push(interpreter, key);
     push(interpreter, value);
@@ -1122,13 +1132,13 @@ inline void settable(ValueWrapper const& table, K const& key, T const& value)
 }
 
 template<class ValueWrapper, class K>
-inline object rawget(ValueWrapper const& table, K const& key)
+inline object rawget(ValueWrapper const& wrapper, K const& key)
 {
     lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter(
-        table
+        wrapper
     );
 
-    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, table);
+    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, wrapper);
     detail::stack_pop pop(interpreter, 2);
     push(interpreter, key);
     lua_rawget(interpreter, -2);
@@ -1136,15 +1146,15 @@ inline object rawget(ValueWrapper const& table, K const& key)
 }
 
 template<class ValueWrapper, class K, class T>
-inline void rawset(ValueWrapper const& table, K const& key, T const& value)
+inline void rawset(ValueWrapper const& wrapper, K const& key, T const& value)
 {
     lua_State* interpreter = value_wrapper_traits<ValueWrapper>::interpreter(
-        table
+        wrapper
     );
 
     // TODO: Exception safe?
 
-    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, table);
+    value_wrapper_traits<ValueWrapper>::unwrap(interpreter, wrapper);
     detail::stack_pop pop(interpreter, 1);
     push(interpreter, key);
     push(interpreter, value);

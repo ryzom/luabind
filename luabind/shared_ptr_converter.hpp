@@ -12,7 +12,11 @@
 # include <luabind/handle.hpp>           // for handle
 
 # include <boost/mpl/bool.hpp>           // for bool_, false_
-# include <boost/smart_ptr/shared_ptr.hpp>  // for shared_ptr, get_deleter
+# if BOOST_VERSION >= 103900
+#  include <boost/smart_ptr/shared_ptr.hpp>
+# else
+#  include <boost/shared_ptr.hpp>
+# endif
 
 namespace luabind {
 
@@ -48,6 +52,7 @@ namespace detail
   // From http://stackoverflow.com/a/1007175/2128694
   // (by Johannes Schaub - litb, "based on a brilliant idea of someone on
   // usenet")
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
   template <typename T>
   struct has_shared_from_this_aux
   {
@@ -75,6 +80,10 @@ namespace detail
   struct has_shared_from_this:
       mpl::bool_<has_shared_from_this_aux<T>::value>
   {};
+#else
+  template <typename T>
+  struct has_shared_from_this: mpl::false_ {};
+#endif
 
 } // namespace detail
 
@@ -164,6 +173,7 @@ public:
 };
 } // namepace detail
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <typename T>
 struct default_converter<boost::shared_ptr<T> >:
     detail::shared_ptr_converter<boost::shared_ptr<T> > {};
@@ -171,6 +181,7 @@ struct default_converter<boost::shared_ptr<T> >:
 template <typename T>
 struct default_converter<boost::shared_ptr<T> const&>:
     detail::shared_ptr_converter<boost::shared_ptr<T> > {};
+#endif
 
 typedef void(*state_unreferenced_fun)(lua_State*);
 

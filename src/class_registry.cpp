@@ -52,7 +52,7 @@ namespace luabind { namespace detail {
             lua_rawsetp(L, -2, &classrep_tag);
 
             lua_pushliteral(L, "__gc");
-            lua_pushcfunction(L, &garbage_collector<class_rep>);
+            lua_pushcfunction(L, &garbage_collector_s<class_rep>::apply);
             lua_rawset(L, -3);
 
             lua_pushliteral(L, "__call");

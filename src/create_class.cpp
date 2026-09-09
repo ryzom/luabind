@@ -63,7 +63,7 @@ namespace luabind { namespace detail
     }
 
 
-    int create_class::stage2(lua_State* L)
+    int LUABIND_CDECL create_class::stage2(lua_State* L)
     {
         class_rep* crep = static_cast<class_rep*>(lua_touserdata(L, lua_upvalueindex(1)));
         assert((crep != 0) && "internal error, please report");
@@ -97,7 +97,7 @@ namespace luabind { namespace detail
         return 0;
     }
 
-    int create_class::stage1(lua_State* L)
+    int LUABIND_CDECL create_class::stage1(lua_State* L)
     {
 
     #ifndef LUABIND_NO_ERROR_CHECKING

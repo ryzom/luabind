@@ -75,7 +75,7 @@ namespace luabind { namespace detail
     no_other_t is_other_test(...);
 
     template<typename T>
-    yes_other_t is_other_test(type_< other<T> >);
+    yes_other_t is_other_test(boost::type< other<T> >);
 
     template<bool wrapped>
     struct other_unwrapper

@@ -101,6 +101,7 @@
 #include <boost/preprocessor/repetition/enum_params.hpp>
 #include <boost/preprocessor/repetition/enum_params_with_a_default.hpp>
 #include <boost/preprocessor/repetition/repeat.hpp>
+#include <boost/type_traits/is_base_and_derived.hpp>
 #include <boost/type_traits/is_member_object_pointer.hpp>
 #include <boost/type_traits/is_same.hpp>
 
@@ -134,11 +135,13 @@ namespace luabind
     template<class T, class X1 = detail::unspecified, class X2 = detail::unspecified, class X3 = detail::unspecified>
     struct class_;
 
+    namespace detail { struct bases_tag {}; }
+
     template <
         BOOST_PP_ENUM_PARAMS_WITH_A_DEFAULT(
             LUABIND_MAX_BASES, class A, detail::null_type)
     >
-    struct bases
+    struct bases : detail::bases_tag
     {};
 
     typedef bases<detail::null_type> no_bases;
@@ -147,14 +150,29 @@ namespace luabind
     {
         template <class T>
         struct is_bases
-          : mpl::false_
+          : boost::is_base_and_derived<bases_tag, T>
         {};
 
-        template <BOOST_PP_ENUM_PARAMS(LUABIND_MAX_BASES, class A)>
-        struct is_bases<bases<BOOST_PP_ENUM_PARAMS(LUABIND_MAX_BASES, A)> >
-          : mpl::true_
-        {};
+#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+        template <class T>
+        struct is_unspecified_impl
+        {
+            template <class P>
+            struct apply : mpl::apply1<P, T> {};
+        };
 
+        template <>
+        struct is_unspecified_impl<unspecified>
+        {
+            template <class P>
+            struct apply : mpl::true_ {};
+        };
+
+        template <class T, class P>
+        struct is_unspecified
+          : is_unspecified_impl<T>::BOOST_NESTED_TEMPLATE apply<P>
+        {};
+#else
         template <class T, class P>
         struct is_unspecified
           : mpl::apply1<P, T>
@@ -164,6 +182,7 @@ namespace luabind
         struct is_unspecified<unspecified, P>
           : mpl::true_
         {};
+#endif
 
         template <class P>
         struct is_unspecified_mfn
@@ -180,6 +199,28 @@ namespace luabind
             typedef mpl::protect<is_unspecified_mfn<Predicate> > type;
         };
 
+#ifdef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
+        template <class Result>
+        struct result_or_default_impl
+        {
+            template <class Default>
+            struct apply { typedef Result type; };
+        };
+
+        template <>
+        struct result_or_default_impl<unspecified>
+        {
+            template <class Default>
+            struct apply { typedef Default type; };
+        };
+
+        template <class Result, class Default>
+        struct result_or_default
+        {
+            typedef typename result_or_default_impl<Result>
+                ::BOOST_NESTED_TEMPLATE apply<Default>::type type;
+        };
+#else
         template <class Result, class Default>
         struct result_or_default
         {
@@ -191,6 +232,7 @@ namespace luabind
         {
             typedef Default type;
         };
+#endif
 
         template<class Parameters, class Predicate, class DefaultValue>
         struct extract_parameter
@@ -204,8 +246,8 @@ namespace luabind
 
         struct LUABIND_API create_class
         {
-            static int stage1(lua_State* L);
-            static int stage2(lua_State* L);
+            static int LUABIND_CDECL stage1(lua_State* L);
+            static int LUABIND_CDECL stage2(lua_State* L);
         };
 
     } // detail
@@ -299,13 +341,11 @@ namespace luabind
         template <class P, class T>
         struct default_pointer
         {
-            typedef P type;
-        };
-
-        template <class T>
-        struct default_pointer<null_type, T>
-        {
-            typedef luabind::unique_ptr<T> type;
+            typedef typename mpl::if_<
+                boost::is_same<P, null_type>
+              , luabind::unique_ptr<T>
+              , P
+            >::type type;
         };
 
         template <class Class, class Pointer, class Signature, class Policies>
@@ -337,35 +377,38 @@ namespace luabind
 
         template <class T>
         struct reference_result
-          : mpl::if_<
+        {
+            typedef typename mpl::if_<
                 mpl::or_<boost::is_pointer<T>, is_primitive<T> >
               , T
               , typename boost::add_reference<T>::type
-            >
-        {};
+            >::type type;
+        };
 
         template <class T>
         struct reference_argument
-          : mpl::if_<
+        {
+            typedef typename mpl::if_<
                 mpl::or_<boost::is_pointer<T>, is_primitive<T> >
               , T
               , typename boost::add_reference<
                     typename boost::add_const<T>::type
                 >::type
-            >
-        {};
+            >::type type;
+        };
 
         template <class T, class Policies>
         struct inject_dependency_policy
-          : mpl::if_<
+        {
+            typedef typename mpl::if_<
                 mpl::or_<
                     is_primitive<T>
                   , has_policy<Policies, detail::no_dependency_policy>
                 >
               , Policies
               , policy_cons<dependency_policy<0, 1>, Policies>
-            >
-        {};
+            >::type type;
+        };
 
         template <
             class Class
@@ -733,11 +776,13 @@ namespace luabind
     private:
         void operator=(class_ const&);
 
-        void add_wrapper_cast(detail::null_type*)
+        // VC6: a non-template `null_type*` overload is C2668-ambiguous with
+        // `template <class U> U*` when WrappedType is null_type. Tag-dispatch.
+        void add_wrapper_cast_aux(detail::null_type*, boost::mpl::true_)
         {}
 
         template <class U>
-        void add_wrapper_cast(U*)
+        void add_wrapper_cast_aux(U*, boost::mpl::false_)
         {
             add_cast(
                 detail::registered_class<U>::id
@@ -746,6 +791,13 @@ namespace luabind
             );
 
             add_downcast(static_cast<T*>(0), static_cast<U*>(0), boost::is_polymorphic<T>());
+        }
+
+        template <class U>
+        void add_wrapper_cast(U* p)
+        {
+            add_wrapper_cast_aux(
+                p, boost::mpl::bool_<boost::is_same<U, detail::null_type>::value>());
         }
 
         void init()

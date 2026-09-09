@@ -79,7 +79,7 @@ inline int invoke0(
 {
     return invoke_member(
         L, self, ctx, f, Signature(), policies
-      , mpl::long_<mpl::size<Signature>::value - 1>(), IsVoid()
+      , mpl::long_<(mpl::size<Signature>::value - 1)>(), IsVoid()
     );
 }
 
@@ -90,7 +90,7 @@ inline int invoke0(
 {
     return invoke_normal(
         L, self, ctx, f, Signature(), policies
-      , mpl::long_<mpl::size<Signature>::value - 1>(), IsVoid()
+      , mpl::long_<(mpl::size<Signature>::value - 1)>(), IsVoid()
     );
 }
 
@@ -99,9 +99,10 @@ inline int invoke(
     lua_State* L, function_object const& self, invoke_context& ctx
   , F const& f, Signature, Policies const& policies)
 {
+    typedef LUABIND_MSVC_TYPENAME mpl::front<Signature>::type result_type;
     return invoke0(
         L, self, ctx, f, Signature(), policies
-      , boost::is_void<typename mpl::front<Signature>::type>()
+      , boost::is_void<result_type>()
       , boost::is_member_function_pointer<F>()
    );
 }

@@ -44,7 +44,7 @@ namespace detail
           detail::format_signature(L, function, Signature());
       }
 
-      static int entry_point(lua_State* L)
+      static int LUABIND_CDECL entry_point(lua_State* L)
       {
           function_object_impl const* impl =
             *static_cast<function_object_impl const**>(

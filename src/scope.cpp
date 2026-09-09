@@ -176,8 +176,8 @@ namespace luabind {
 
     } // namespace unnamed
 
-    module_::module_(object const& table)
-        : m_table(table)
+    module_::module_(object const& table_object)
+        : m_table(table_object)
     {
     }
 

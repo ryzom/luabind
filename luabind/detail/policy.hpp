@@ -612,7 +612,7 @@ namespace luabind { namespace detail
 
 // *********** default_policy *****************
 
-template <class T, class Enable = void>
+template <class T, class Enable = luabind_unspecified>
 struct default_converter
   : detail::default_converter_generator<T>::type
 {};
@@ -638,10 +638,12 @@ struct native_converter_base
         return derived().compute_score(L, index);
     }
 
+#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     int match(lua_State* L, detail::by_value<T const>, int index)
     {
         return derived().compute_score(L, index);
     }
+#endif
 
     int match(lua_State* L, detail::by_const_reference<T>, int index)
     {
@@ -653,10 +655,12 @@ struct native_converter_base
         return derived().from(L, index);
     }
 
+#if !defined(BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION)
     value_type apply(lua_State* L, detail::by_value<T const>, int index)
     {
         return derived().from(L, index);
     }
+#endif
 
     value_type apply(lua_State* L, detail::by_const_reference<T>, int index)
     {
@@ -688,11 +692,13 @@ struct number_converter
         typename TraitsLua = boost::integer_traits<lua_Integer> >
     struct use_integer: boost::mpl::false_ {};
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     template <typename Traits, typename TraitsLua>
     struct use_integer<true, Traits, TraitsLua>: boost::mpl::bool_<
         Traits::const_min >= TraitsLua::const_min
         && Traits::const_max <= TraitsLua::const_max>
     {};
+#endif
 
     typedef typename boost::remove_const<typename boost::remove_reference<QualifiedT>::type>::type T;
     typedef typename native_converter_base<T>::param_type param_type;
@@ -737,6 +743,7 @@ struct number_converter
         do_to(L, value, use_integer_t());
     }
 };
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 // template partial specialization for those types that boost knows to be
 // arithmetic and const references to them
 template <typename T>
@@ -756,6 +763,7 @@ struct default_converter<T,
     > >::type
 >
     : number_converter<T> {};
+#endif
 
 // *********** converter for bool *****************
 template <>
@@ -876,6 +884,7 @@ struct default_converter<char*>
   : default_converter<char const*>
 {};
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <std::size_t N>
 struct default_converter<char const[N]>
   : default_converter<char const*>
@@ -885,6 +894,7 @@ template <std::size_t N>
 struct default_converter<char[N]>
   : default_converter<char const*>
 {};
+#endif
 
 
 // *********** converter for lua_State * arguments - consuming no explicit args *****************
@@ -929,10 +939,13 @@ namespace detail
         };
     };
 
+    // VC6 cannot use a nested typedef as a base class (C2516).
     template<class T>
     struct is_primitive
-      : default_converter<T>::is_native
-    {};
+    {
+        BOOST_STATIC_CONSTANT(bool, value = default_converter<T>::is_native::value);
+        typedef boost::mpl::bool_<value> type;
+    };
 
 // ============== new policy system =================
 
@@ -1056,18 +1069,32 @@ namespace detail
         static void apply(lua_State*, int) {}
     };
 
+    // Nested apply rather than has_policy<null_type, Sought> partial spec
+    // (VC6) or eval_if (VC6 still instantiates Policies::head).
+    template <class Policies>
+    struct has_policy_impl
+    {
+        template <class Sought>
+        struct apply
+          : mpl::eval_if<
+                boost::is_same<LUABIND_MSVC_TYPENAME Policies::head, Sought>
+              , mpl::true_
+              , has_policy_impl<LUABIND_MSVC_TYPENAME Policies::tail>
+                    ::BOOST_NESTED_TEMPLATE apply<Sought>
+            >::type
+        {};
+    };
+
+    template <>
+    struct has_policy_impl<null_type>
+    {
+        template <class Sought>
+        struct apply : mpl::false_ {};
+    };
+
     template <class Policies, class Sought>
     struct has_policy
-      : mpl::if_<
-            boost::is_same<typename Policies::head, Sought>
-          , mpl::true_
-          , has_policy<typename Policies::tail, Sought>
-        >::type
-    {};
-
-    template <class Sought>
-    struct has_policy<null_type, Sought>
-      : mpl::false_
+      : has_policy_impl<Policies>::BOOST_NESTED_TEMPLATE apply<Sought>
     {};
 
 }} // namespace luabind::detail

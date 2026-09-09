@@ -109,7 +109,8 @@ struct iterator_policy : conversion_policy<0>
 namespace luabind {
 
     detail::policy_cons<detail::iterator_policy, detail::null_type> const
-        return_stl_iterator = {};
+        return_stl_iterator
+        = detail::policy_cons<detail::iterator_policy, detail::null_type>();
 
     namespace detail
     {

@@ -41,6 +41,12 @@ T* get_pointer(luabind::unique_ptr<T, Deleter> const& ptr)
 {
     return ptr.get();
 }
+#else
+template <class T>
+T* get_pointer(luabind::unique_ptr<T> const& ptr)
+{
+    return ptr.get();
+}
 #endif // LUABIND_NO_STD_UNIQUE_PTR
 
 } // namespace luabind

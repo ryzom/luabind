@@ -87,7 +87,7 @@ namespace
 
             // set gc metatable
             lua_createtable(L, 0, 1); // one (non-sequence) element.
-            lua_pushcfunction(L, &detail::garbage_collector<T>);
+            lua_pushcfunction(L, &detail::garbage_collector_s<T>::apply);
             lua_setfield(L, -2, "__gc");
             lua_setmetatable(L, -2);
 

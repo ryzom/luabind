@@ -27,8 +27,11 @@
 #include <luabind/config.hpp>
 #include <luabind/detail/class_rep.hpp>
 #include <luabind/detail/instance_holder.hpp>
+#include <luabind/lua_include.hpp>
 
+#if !defined(BOOST_MSVC) || (BOOST_MSVC > 1200)
 #include <boost/aligned_storage.hpp>
+#endif
 #include <cstdlib>
 
 namespace luabind { namespace detail
@@ -98,14 +101,34 @@ namespace luabind { namespace detail
 
         void operator=(object_rep const&);
 
+        BOOST_STATIC_CONSTANT(std::size_t, instance_buffer_size=32);
+#if defined(BOOST_MSVC) && (BOOST_MSVC <= 1200)
+        // boost::aligned_storage<> uses mpl::eval_if_c inside a union; VC6
+        // cannot parse that. A union of the Lua scalar types is enough to
+        // match lua_newuserdata alignment (see lua.h LUAI_MAXALIGN).
+        // Literal 32: VC6 treats BOOST_STATIC_CONSTANT as a private enum
+        // that an anonymous union cannot name.
+        union {
+            char bytes[32];
+#ifdef LUAI_MAXALIGN
+            union { LUAI_MAXALIGN; } aligner;
+#else
+            lua_Number n;
+            double d;
+            void* s;
+            lua_Integer i;
+            long l;
+#endif
+        } m_instance_buffer;
+#else
 #ifdef LUAI_MAXALIGN
         struct cD { char c; union { LUAI_MAXALIGN; } u; };
 #else
         struct cD { char c; union { lua_Number n; double u; void *s; lua_Integer i; long l; } u; };
 #endif
-        BOOST_STATIC_CONSTANT(std::size_t, instance_buffer_size=32);
         BOOST_STATIC_CONSTANT(std::size_t, instance_buffer_align=offsetof(struct cD, u));
         boost::aligned_storage<instance_buffer_size, instance_buffer_align> m_instance_buffer;
+#endif
         instance_holder* m_instance;
         class_rep* m_classrep; // the class information about this object's type
         std::size_t m_dependency_cnt; // counts dependencies

@@ -93,7 +93,7 @@ namespace luabind {
     class LUABIND_API module_
     {
     public:
-        module_(object const& table);
+        module_(object const& table_object);
         module_(lua_State* L, char const* name);
         void operator[](scope s);
 
@@ -101,9 +101,9 @@ namespace luabind {
         object m_table;
     };
 
-    inline module_ module(object const& table)
+    inline module_ module(object const& table_object)
     {
-        return module_(table);
+        return module_(table_object);
     }
 
 

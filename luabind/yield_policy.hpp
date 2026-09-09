@@ -38,7 +38,9 @@ namespace luabind { namespace detail
 
 namespace luabind
 {
-  detail::policy_cons<detail::yield_policy, detail::null_type> const yield = {};
+  // VC6: `= {}` is C2059. Copy-initialize from a temporary instead.
+  detail::policy_cons<detail::yield_policy, detail::null_type> const yield
+      = detail::policy_cons<detail::yield_policy, detail::null_type>();
 
   namespace detail
   {

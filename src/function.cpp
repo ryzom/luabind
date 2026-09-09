@@ -15,7 +15,7 @@ namespace
   // by luabind.
   char function_tag = 0;
 
-  int function_destroy(lua_State* L)
+  int LUABIND_CDECL function_destroy(lua_State* L)
   {
       function_object* fn = *static_cast<function_object**>(
           lua_touserdata(L, 1));

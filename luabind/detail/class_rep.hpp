@@ -40,7 +40,7 @@ namespace luabind { namespace detail
     struct class_registration;
 
     // This function is used as a tag to identify "properties".
-    LUABIND_API int property_tag(lua_State*);
+    LUABIND_API int LUABIND_CDECL property_tag(lua_State*);
     extern char classrep_tag; // Not used in headers, thus no LUABIND_API.
 
     // this is class-specific information, poor man's vtable
@@ -86,7 +86,7 @@ namespace luabind { namespace detail
         std::pair<void*,void*> allocate(lua_State* L) const;
 
         // this is called as metamethod __call on the class_rep.
-        static int constructor_dispatcher(lua_State* L);
+        static int LUABIND_CDECL constructor_dispatcher(lua_State* L);
 
         void add_base_class(class_rep* bcrep);
 
@@ -107,15 +107,15 @@ namespace luabind { namespace detail
 
         void add_static_constant(const char* name, int val);
 
-        static int super_callback(lua_State* L);
+        static int LUABIND_CDECL super_callback(lua_State* L);
 
-        static int lua_settable_dispatcher(lua_State* L);
+        static int LUABIND_CDECL lua_settable_dispatcher(lua_State* L);
 
         // called from the metamethod for __index
         // obj is the object pointer
-        static int static_class_gettable(lua_State* L);
+        static int LUABIND_CDECL static_class_gettable(lua_State* L);
 
-        static int tostring(lua_State* L); // for __tostring
+        static int LUABIND_CDECL tostring(lua_State* L); // for __tostring
 
         cast_graph const& casts() const
         {

@@ -76,8 +76,24 @@ namespace
       void invalidate();
 
   private:
-      typedef boost::tuple<
-          class_id, class_id, class_id, std::ptrdiff_t> key_type;
+      // VC6 cannot parse boost::tuple<class_id, class_id, class_id, int>
+      // as a std::map key (C2059 on '<').
+      struct key_type
+      {
+          class_id src;
+          class_id target;
+          class_id dynamic_id;
+          int object_offset;
+          key_type(class_id s, class_id t, class_id d, int o)
+            : src(s), target(t), dynamic_id(d), object_offset(o) {}
+          bool operator<(key_type const& y) const
+          {
+              if (src != y.src) return src < y.src;
+              if (target != y.target) return target < y.target;
+              if (dynamic_id != y.dynamic_id) return dynamic_id < y.dynamic_id;
+              return object_offset < y.object_offset;
+          }
+      };
       typedef std::map<key_type, cache_entry> map_type;
       map_type m_cache;
   };

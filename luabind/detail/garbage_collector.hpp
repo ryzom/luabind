@@ -32,7 +32,7 @@ namespace luabind { namespace detail
 {
     // function that is used as __gc metafunction on several objects
     template<class T>
-    inline int garbage_collector(lua_State* L)
+    inline int LUABIND_CDECL garbage_collector(lua_State* L)
     {
         T* obj = static_cast<T*>(lua_touserdata(L, -1));
         obj->~T();
@@ -42,7 +42,7 @@ namespace luabind { namespace detail
     template<class T>
     struct garbage_collector_s
     {
-        static int apply(lua_State* L)
+        static int LUABIND_CDECL apply(lua_State* L)
         {
             T* obj = static_cast<T*>(lua_touserdata(L, -1));
             obj->~T();

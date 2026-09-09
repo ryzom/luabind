@@ -11,8 +11,10 @@
 # include <luabind/typeid.hpp>
 
 # include <boost/mpl/begin_end.hpp>
+# include <boost/mpl/bool.hpp>
 # include <boost/mpl/next.hpp>
 # include <boost/mpl/size.hpp>
+# include <boost/type_traits/is_same.hpp>
 
 
 namespace luabind { namespace detail {
@@ -21,7 +23,7 @@ namespace mpl = boost::mpl;
 
 LUABIND_API std::string get_class_name(lua_State* L, type_id const& i);
 
-template <class T, class Enable = void>
+template <class T, class Enable = luabind_unspecified>
 struct type_to_string
 {
     static void get(lua_State* L)
@@ -31,6 +33,7 @@ struct type_to_string
     }
 };
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <class T>
 struct type_to_string<T*>
 {
@@ -63,6 +66,7 @@ struct type_to_string<T const>
         lua_concat(L, 2);
     }
 };
+#endif
 
 # define LUABIND_TYPE_TO_STRING(x) \
     template <> \
@@ -83,8 +87,11 @@ LUABIND_INTEGRAL_TYPE_TO_STRING(short)
 LUABIND_INTEGRAL_TYPE_TO_STRING(int)
 LUABIND_INTEGRAL_TYPE_TO_STRING(long)
 
-#ifndef BOOST_NO_LONG_LONG
+#if !defined(BOOST_NO_LONG_LONG) && !defined(BOOST_MSVC)
     LUABIND_INTEGRAL_TYPE_TO_STRING(long long)
+#elif defined(BOOST_MSVC) && (BOOST_MSVC <= 1200) && defined(_MSC_EXTENSIONS)
+    LUABIND_TYPE_TO_STRING(__int64)
+    LUABIND_TYPE_TO_STRING(unsigned __int64)
 #endif
 
 LUABIND_TYPE_TO_STRING(void)
@@ -98,6 +105,7 @@ LUABIND_TYPE_TO_STRING(luabind::argument)
 # undef LUABIND_INTEGRAL_TYPE_TO_STRING
 # undef LUABIND_TYPE_TO_STRING
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <class Base>
 struct type_to_string<table<Base> >
 {
@@ -106,26 +114,32 @@ struct type_to_string<table<Base> >
         lua_pushliteral(L, "table");
     }
 };
+#endif
 
 template <class End>
-void format_signature_aux(lua_State*, bool, End, End)
+void format_signature_aux(lua_State*, bool, End, End, mpl::true_)
 {}
 
 template <class Iter, class End>
-void format_signature_aux(lua_State* L, bool first, Iter, End end)
+void format_signature_aux(lua_State* L, bool first, Iter, End end, mpl::false_)
 {
     if (!first)
         lua_pushliteral(L, ",");
-    type_to_string<typename Iter::type>::get(L);
-    format_signature_aux(L, false, typename mpl::next<Iter>::type(), end);
+    type_to_string<LUABIND_MSVC_TYPENAME Iter::type>::get(L);
+    typedef LUABIND_MSVC_TYPENAME mpl::next<Iter>::type next;
+    format_signature_aux(
+        L, false, next(), end
+      , mpl::bool_<boost::is_same<next, End>::value>());
 }
 
 template <class Signature>
 void format_signature(lua_State* L, char const* function, Signature)
 {
-    typedef typename mpl::begin<Signature>::type first;
+    typedef LUABIND_MSVC_TYPENAME mpl::begin<Signature>::type first;
+    typedef LUABIND_MSVC_TYPENAME mpl::next<first>::type second;
+    typedef LUABIND_MSVC_TYPENAME mpl::end<Signature>::type last;
 
-    type_to_string<typename first::type>::get(L);
+    type_to_string<LUABIND_MSVC_TYPENAME first::type>::get(L);
 
     lua_pushliteral(L, " ");
     lua_pushstring(L, function);
@@ -134,8 +148,9 @@ void format_signature(lua_State* L, char const* function, Signature)
     format_signature_aux(
         L
       , true
-      , typename mpl::next<first>::type()
-      , typename mpl::end<Signature>::type()
+      , second()
+      , last()
+      , mpl::bool_<boost::is_same<second, last>::value>()
     );
     lua_pushliteral(L, ")");
     int const signature_len = static_cast<int>(mpl::size<Signature>());

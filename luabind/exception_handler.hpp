@@ -7,7 +7,7 @@
 
 # include <luabind/config.hpp>           // for LUABIND_API
 
-# include <boost/optional/optional.hpp>  // for optional
+# include <luabind/detail/boost_optional.hpp>
 # include <boost/type.hpp>
 
 # include <luabind/lua_include.hpp>

@@ -7,6 +7,7 @@
 
 # include <luabind/detail/inheritance.hpp>
 # include <luabind/detail/object_rep.hpp>
+# include <luabind/get_pointer.hpp>
 # include <luabind/luabind_memory.hpp>
 
 # include <boost/type_traits/is_polymorphic.hpp>

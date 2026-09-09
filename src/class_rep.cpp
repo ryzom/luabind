@@ -22,10 +22,14 @@
 
 #define LUABIND_BUILDING
 
+#include <luabind/config.hpp>
+#include <luabind/detail/class_registry.hpp>
+#include <luabind/detail/class_rep.hpp>
+#include <luabind/detail/inheritance.hpp>
+#include <luabind/detail/object_rep.hpp>
 #include <luabind/detail/stack_utils.hpp>
 #include <luabind/exception_handler.hpp>
 #include <luabind/get_main_thread.hpp>
-#include <luabind/luabind.hpp>
 
 #include <luabind/lua_include.hpp>
 
@@ -35,7 +39,7 @@ using namespace luabind::detail;
 
 namespace luabind { namespace detail
 {
-    LUABIND_API int property_tag(lua_State* L)
+    LUABIND_API int LUABIND_CDECL property_tag(lua_State* L)
     {
         lua_pushliteral(L, "luabind: property_tag function can't be called");
         lua_error(L);
@@ -45,12 +49,12 @@ namespace luabind { namespace detail
     char classrep_tag = 0;
 }}
 
-luabind::detail::class_rep::class_rep(type_id const& type_
-    , const char* name_
+luabind::detail::class_rep::class_rep(type_id const& type
+    , const char* name
     , lua_State* L
 )
-    : m_type(type_)
-    , m_name(name_)
+    : m_type(type)
+    , m_name(name)
     , m_class_type(cpp_class)
 {
     shared_init(L);
@@ -115,7 +119,7 @@ namespace
 } // namespace unnamed
 
 // this is called as metamethod __call on the class_rep.
-int luabind::detail::class_rep::constructor_dispatcher(lua_State* L)
+int LUABIND_CDECL luabind::detail::class_rep::constructor_dispatcher(lua_State* L)
 {
     class_rep* cls = static_cast<class_rep*>(lua_touserdata(L, 1));
 
@@ -182,7 +186,7 @@ LUABIND_API void luabind::disable_super_deprecation()
     super_deprecation_disabled = true;
 }
 
-int luabind::detail::class_rep::super_callback(lua_State* L)
+int LUABIND_CDECL luabind::detail::class_rep::super_callback(lua_State* L)
 {
     int args = lua_gettop(L);
 
@@ -224,7 +228,7 @@ int luabind::detail::class_rep::super_callback(lua_State* L)
 
 
 
-int luabind::detail::class_rep::lua_settable_dispatcher(lua_State* L)
+int LUABIND_CDECL luabind::detail::class_rep::lua_settable_dispatcher(lua_State* L)
 {
     class_rep* crep = static_cast<class_rep*>(lua_touserdata(L, 1));
 
@@ -251,7 +255,7 @@ int luabind::detail::class_rep::lua_settable_dispatcher(lua_State* L)
     1: class_rep
     2: member name
 */
-int luabind::detail::class_rep::static_class_gettable(lua_State* L)
+int LUABIND_CDECL luabind::detail::class_rep::static_class_gettable(lua_State* L)
 {
     class_rep* crep = static_cast<class_rep*>(lua_touserdata(L, 1));
 
@@ -308,7 +312,7 @@ int luabind::detail::class_rep::static_class_gettable(lua_State* L)
 #endif
 }
 
-int luabind::detail::class_rep::tostring(lua_State* L)
+int LUABIND_CDECL luabind::detail::class_rep::tostring(lua_State* L)
 {
     class_rep* crep = static_cast<class_rep*>(lua_touserdata(L, 1));
     lua_pushfstring(L, "class %s", crep->m_name ? crep->m_name : "<unnamed>");

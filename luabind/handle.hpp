@@ -42,11 +42,11 @@ public:
     handle();
     handle(lua_State* L, int stack_index);
     handle(lua_State* main, lua_State* L, int stack_index);
-    handle(handle const& other);
+    handle(handle const& rhs);
     ~handle();
 
-    handle& operator=(handle const& other);
-    void swap(handle& other);
+    handle& operator=(handle const& rhs);
+    void swap(handle& rhs);
 
     void push(lua_State* L) const;
 
@@ -67,12 +67,12 @@ inline handle::handle()
   , m_index(LUA_NOREF)
 {}
 
-inline handle::handle(handle const& other)
-  : m_interpreter(other.m_interpreter)
+inline handle::handle(handle const& rhs)
+  : m_interpreter(rhs.m_interpreter)
   , m_index(LUA_NOREF)
 {
     if (m_interpreter == 0) return;
-    other.push(m_interpreter);
+    rhs.push(m_interpreter);
     m_index = luaL_ref(m_interpreter, LUA_REGISTRYINDEX);
 }
 
@@ -98,16 +98,16 @@ inline handle::~handle()
         luaL_unref(m_interpreter, LUA_REGISTRYINDEX, m_index);
 }
 
-inline handle& handle::operator=(handle const& other)
+inline handle& handle::operator=(handle const& rhs)
 {
-    handle(other).swap(*this);
+    handle(rhs).swap(*this);
     return *this;
 }
 
-inline void handle::swap(handle& other)
+inline void handle::swap(handle& rhs)
 {
-    std::swap(m_interpreter, other.m_interpreter);
-    std::swap(m_index, other.m_index);
+    std::swap(m_interpreter, rhs.m_interpreter);
+    std::swap(m_index, rhs.m_index);
 }
 
 inline void handle::push(lua_State* L) const
