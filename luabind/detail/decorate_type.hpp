@@ -26,6 +26,7 @@
 
 #include <luabind/config.hpp>
 #include <luabind/detail/primitives.hpp>
+#include <luabind/detail/typetraits.hpp>
 
 namespace luabind { namespace detail
 {
@@ -199,24 +200,41 @@ namespace luabind { namespace detail
         static T& data() { return reinterpret_cast<T&>(decorated_type_array); }
     };
 
+    // Nested mpl::if_<> as a base class is unparseable on MSVC 6
+    // (C2518 / "if_ is already a direct base"). Flatten via typedefs.
+    template<class T>
+    struct decorated_type_select_cptr
+    {
+        typedef LUABIND_MSVC_TYPENAME boost::mpl::if_<
+            luabind::detail::is_const_pointer<T>
+          , decorated_type_cptr_impl<T>
+          , decorated_type_value_impl<T>
+        >::type type;
+    };
+
+    template<class T>
+    struct decorated_type_select_ptr
+    {
+        typedef LUABIND_MSVC_TYPENAME boost::mpl::if_<
+            luabind::detail::is_nonconst_pointer<T>
+          , decorated_type_ptr_impl<T>
+          , LUABIND_MSVC_TYPENAME decorated_type_select_cptr<T>::type
+        >::type type;
+    };
+
+    template<class T>
+    struct decorated_type_select_ref
+    {
+        typedef LUABIND_MSVC_TYPENAME boost::mpl::if_<
+            luabind::detail::is_nonconst_reference<T>
+          , decorated_type_ref_impl<T>
+          , LUABIND_MSVC_TYPENAME decorated_type_select_ptr<T>::type
+        >::type type;
+    };
+
     template<class T>
     struct decorated_type
-//      : boost::mpl::if_<boost::is_array<T>
-//          ,   decorated_type_array_impl<T>
-        :       boost::mpl::if_<luabind::detail::is_const_reference<T>
-                    , decorated_type_cref_impl<T>
-                    , typename boost::mpl::if_<luabind::detail::is_nonconst_reference<T>
-                        , decorated_type_ref_impl<T>
-                        , typename boost::mpl::if_<luabind::detail::is_nonconst_pointer<T>
-                            , decorated_type_ptr_impl<T>
-                            , typename boost::mpl::if_<luabind::detail::is_const_pointer<T>
-                                , decorated_type_cptr_impl<T>
-                                , decorated_type_value_impl<T>
-                    >::type
-                >::type
-            >::type
-        >::type
-//  >::type
+        : decorated_type_select_ref<T>::type
     {
     };
 

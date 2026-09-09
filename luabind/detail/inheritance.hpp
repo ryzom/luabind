@@ -165,10 +165,14 @@ struct registered_class
 template <class T>
 class_id const registered_class<T>::id = allocate_class_id(typeid(T));
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
 template <class T>
 struct registered_class<T const>
   : registered_class<T>
 {};
+#endif
+// MSVC 6: typeid() is cv-stripped, so allocate_class_id(typeid(T const))
+// interned the same class_id as T without the partial spec.
 
 }} // namespace luabind::detail
 

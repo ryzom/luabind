@@ -29,6 +29,7 @@
 #include <luabind/detail/instance_holder.hpp>
 
 #include <boost/aligned_storage.hpp>
+#include <cstdlib>
 
 namespace luabind { namespace detail
 {
@@ -81,14 +82,14 @@ namespace luabind { namespace detail
         {
             if (size <= instance_buffer_size)
                 return &m_instance_buffer;
-            return std::malloc(size);
+            return ::malloc(size);
         }
 
         void deallocate(void* storage)
         {
             if (storage == &m_instance_buffer)
                 return;
-            std::free(storage);
+            ::free(storage);
         }
 
     private:

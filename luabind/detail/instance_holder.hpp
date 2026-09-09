@@ -71,7 +71,11 @@ class_id static_class_id(T*)
     return registered_class<T>::id;
 }
 
-template <class P, class Pointee = void const>
+// Default used to be `void const`, which is C2182 on MSVC 6 (`void` as a
+// template argument type). Pointee is unused in the class body; keep the
+// second parameter so constructor.hpp's pointer_holder<Pointer, T> still
+// matches.
+template <class P, class Pointee = P>
 class pointer_holder : public instance_holder
 {
 public:

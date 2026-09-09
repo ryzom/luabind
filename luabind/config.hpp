@@ -36,8 +36,30 @@
     #define LUABIND_ANONYMOUS_FIX
 #endif
 
-#if BOOST_WORKAROUND(BOOST_MSVC, <= 1300)
-    #error "Support for your version of Visual C++ has been removed from this version of Luabind"
+// VC6 (1200) / VC7 (1300). Dropped in 2013 with an #error; restore the
+// workarounds so the library still builds with those compilers (STLport +
+// Boost 1.34, no C++11).
+#if defined (BOOST_MSVC) && (BOOST_MSVC <= 1200)
+#define for if (false) {} else for
+#include <cstring>
+namespace std
+{
+    using ::strlen;
+    using ::strcmp;
+    using ::type_info;
+}
+#endif
+
+#if defined (BOOST_MSVC) && (BOOST_MSVC <= 1300)
+    #define LUABIND_MSVC_TYPENAME
+#else
+    #define LUABIND_MSVC_TYPENAME typename
+#endif
+
+#if defined(BOOST_MSVC) && (BOOST_MSVC < 1600)
+# ifndef LUABIND_NO_STD_SHARED_PTR
+#  define LUABIND_NO_STD_SHARED_PTR
+# endif
 #endif
 
 // the maximum number of arguments of functions that's
