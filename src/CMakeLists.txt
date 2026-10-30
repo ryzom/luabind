@@ -83,6 +83,7 @@ source_group(API FILES ${LUABIND_API})
 
 # ls ../luabind/detail/*.hpp | sort | sed "s/^/    /"
 set(LUABIND_DETAIL_API
+    ../luabind/detail/boost_optional.hpp
     ../luabind/detail/call_function.hpp
     ../luabind/detail/call.hpp
     ../luabind/detail/call_member.hpp
