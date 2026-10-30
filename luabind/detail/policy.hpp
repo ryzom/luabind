@@ -686,17 +686,36 @@ struct number_converter
             typename boost::remove_reference<QualifiedT>::type>::type>
 {
 
+#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     template <
         bool is_integral,
         typename Traits,
         typename TraitsLua = boost::integer_traits<lua_Integer> >
     struct use_integer: boost::mpl::false_ {};
 
-#ifndef BOOST_NO_TEMPLATE_PARTIAL_SPECIALIZATION
     template <typename Traits, typename TraitsLua>
     struct use_integer<true, Traits, TraitsLua>: boost::mpl::bool_<
         Traits::const_min >= TraitsLua::const_min
         && Traits::const_max <= TraitsLua::const_max>
+    {};
+#else
+    // No partial specialization (VC6). An integral type fits lua_Integer when it has no
+    // more value bits (numeric_limits digits, defined for every arithmetic type, so no
+    // lazy selection is needed; Boost 1.34's integer_traits has no const_min/const_max
+    // for __int64 there, and mpl::eval_if_c over these types gives VC6 an internal
+    // compiler error). The comparison sits in an enum because VC6 cannot parse
+    // comparisons inside a template argument list.
+    template <bool is_integral, typename Traits>
+    struct use_integer_calc
+    {
+        enum { value = (is_integral && (Traits::digits <= (int)(sizeof(lua_Integer) * 8 - 1))) ? 1 : 0 };
+    };
+
+    template <
+        bool is_integral,
+        typename Traits,
+        typename TraitsLua = boost::integer_traits<lua_Integer> >
+    struct use_integer: boost::mpl::bool_<(bool)use_integer_calc<is_integral, Traits>::value>
     {};
 #endif
 
@@ -763,6 +782,33 @@ struct default_converter<T,
     > >::type
 >
     : number_converter<T> {};
+#else
+// No partial specialization (VC6): one explicit specialization per arithmetic type,
+// for T, T const and T const&, otherwise these would fall back to value_converter. All
+// three use number_converter<T>: its native_converter_base already has the by_value<T>
+// and by_const_reference<T> overloads, and number_converter<T const&> (what the partial
+// specialization instantiates elsewhere) gives VC6 an internal compiler error.
+# define LUABIND_NUMBER_CONVERTER(T) \
+    template <> struct default_converter<T> : number_converter<T> {}; \
+    template <> struct default_converter<T const> : number_converter<T> {}; \
+    template <> struct default_converter<T const&> : number_converter<T> {};
+LUABIND_NUMBER_CONVERTER(char)
+LUABIND_NUMBER_CONVERTER(signed char)
+LUABIND_NUMBER_CONVERTER(unsigned char)
+LUABIND_NUMBER_CONVERTER(short)
+LUABIND_NUMBER_CONVERTER(unsigned short)
+LUABIND_NUMBER_CONVERTER(int)
+LUABIND_NUMBER_CONVERTER(unsigned int)
+LUABIND_NUMBER_CONVERTER(long)
+LUABIND_NUMBER_CONVERTER(unsigned long)
+LUABIND_NUMBER_CONVERTER(float)
+LUABIND_NUMBER_CONVERTER(double)
+LUABIND_NUMBER_CONVERTER(long double)
+# if defined(BOOST_MSVC) && defined(_MSC_EXTENSIONS)
+LUABIND_NUMBER_CONVERTER(__int64)
+LUABIND_NUMBER_CONVERTER(unsigned __int64)
+# endif
+# undef LUABIND_NUMBER_CONVERTER
 #endif
 
 // *********** converter for bool *****************
