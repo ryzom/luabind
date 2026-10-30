@@ -72,7 +72,7 @@ namespace luabind { namespace detail {
         delete m_chain;
     }
 
-#if __cplusplus >= 201103L
+#ifndef LUABIND_NO_RVALUE_REFERENCES
 
 scope& scope::operator,(scope&& s) // for rvalues
     {
@@ -142,7 +142,7 @@ scope& scope::operator,(scope&& s) // for rvalues
         return *this;
     }
 
-#endif // __cplusplus >= 201103L
+#endif // LUABIND_NO_RVALUE_REFERENCES
 
     void scope::register_(lua_State* L) const
     {

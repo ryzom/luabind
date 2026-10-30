@@ -66,12 +66,12 @@ namespace luabind {
 
         scope& operator=(scope const& other_);
 
-#if __cplusplus >= 201103L
+#ifndef LUABIND_NO_RVALUE_REFERENCES
         scope& operator,(scope&& s);
         scope& operator,(scope& s);
 #else
         scope& operator,(const scope& s);
-#endif // __cplusplus >= 201103L
+#endif // LUABIND_NO_RVALUE_REFERENCES
 
         void register_(lua_State* L) const;
 

@@ -259,20 +259,20 @@ namespace luabind { namespace detail {
     {
         luabind::unique_ptr<registration> ptr(member);
 
-#if __cplusplus < 201103L
+#ifdef LUABIND_NO_RVALUE_REFERENCES
         // Jlee - This definition is for solving the following error
         // error: cannot bind non-const lvalue reference of type 'luabind::scope&' to an rvalue of type 'luabind::scope'
         scope tmp(luabind::move(ptr));
         m_registration->m_members.operator,(tmp);
 #else
         m_registration->m_members.operator,(scope(luabind::move(ptr)));
-#endif // __cplusplus < 201103L
+#endif // LUABIND_NO_RVALUE_REFERENCES
     }
 
     void class_base::add_default_member(registration* member)
     {
         luabind::unique_ptr<registration> ptr(member);
-        #if __cplusplus < 201103L
+        #ifdef LUABIND_NO_RVALUE_REFERENCES
           scope tmp(luabind::move(ptr));
           m_registration->m_default_members.operator,(tmp);
         #else
