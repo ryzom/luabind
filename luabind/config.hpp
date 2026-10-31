@@ -183,7 +183,9 @@ typedef void luabind_unspecified;
 
 // If you use Boost <= 1.46 but your compiler is C++11 compliant and marks
 // destructors as noexcept by default, you need to define LUABIND_USE_NOEXCEPT.
-#if (   !defined(BOOST_NO_NOEXCEPT) \
+// (build_information.hpp may already define it, from the CMake option.)
+#if (   !defined(LUABIND_USE_NOEXCEPT) \
+     && !defined(BOOST_NO_NOEXCEPT) \
      && !defined(BOOST_NO_CXX11_NOEXCEPT) \
      && BOOST_VERSION >= 104700)
 #    define LUABIND_USE_NOEXCEPT
