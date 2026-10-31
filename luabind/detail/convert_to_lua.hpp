@@ -28,6 +28,7 @@
 #include <luabind/detail/policy.hpp>
 
 #include <boost/mpl/apply_wrap.hpp>
+#include <boost/mpl/int.hpp>
 #include <boost/ref.hpp>
 
 namespace luabind { namespace detail
@@ -73,8 +74,12 @@ namespace luabind { namespace detail
         converter.apply(L, unwrap_ref<boost::is_reference_wrapper<T>::value>::get(v));
     }
 
+    // The last parameter only puts Index into the signature: VC6 leaves
+    // explicitly specified template arguments out of a function's decorated
+    // name, so without it all indices would collapse into one instantiation
+    // and every argument would get the same argument's policy.
     template<int Index, class T, class Policies>
-    void convert_to_lua_p(lua_State* L, const T& v, const Policies&)
+    void convert_to_lua_p(lua_State* L, const T& v, const Policies&, mpl::int_<Index>* = 0)
     {
         typedef typename mpl::apply_wrap1<
             unwrap_ref<boost::is_reference_wrapper<T>::value>
