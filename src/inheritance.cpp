@@ -83,8 +83,8 @@ namespace
           class_id src;
           class_id target;
           class_id dynamic_id;
-          int object_offset;
-          key_type(class_id s, class_id t, class_id d, int o)
+          std::ptrdiff_t object_offset;
+          key_type(class_id s, class_id t, class_id d, std::ptrdiff_t o)
             : src(s), target(t), dynamic_id(d), object_offset(o) {}
           bool operator<(key_type const& y) const
           {
