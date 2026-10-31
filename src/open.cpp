@@ -81,8 +81,12 @@ namespace
         return result;
     }
     namespace {
+        // The T* parameters only carry the type: VC6 leaves explicitly
+        // specified template arguments out of a function's decorated name,
+        // so with T given as <T> alone, every instantiation would collapse
+        // into one (one sizeof and one __gc for all four registry objects).
         template<typename T>
-        inline void* create_gc_udata(lua_State* L, void* tag) {
+        inline void* create_gc_udata(lua_State* L, void* tag, T*) {
             void* storage = lua_newuserdata(L, sizeof(T));
 
             // set gc metatable
@@ -96,14 +100,14 @@ namespace
         }
 
         template<typename T>
-        inline void push_gc_udata(lua_State* L, void* tag) {
-            void* storage = create_gc_udata<T>(L, tag);
+        inline void push_gc_udata(lua_State* L, void* tag, T* type) {
+            void* storage = create_gc_udata(L, tag, type);
             new (storage) T;
         }
 
         template<typename T, typename A1>
-        inline void push_gc_udata(lua_State* L, void* tag, A1 constructorArg) {
-            void* storage = create_gc_udata<T>(L, tag);
+        inline void push_gc_udata(lua_State* L, void* tag, T* type, A1 constructorArg) {
+            void* storage = create_gc_udata(L, tag, type);
             new (storage) T(constructorArg);
         }
     }
@@ -121,10 +125,10 @@ namespace
             );
         }
 
-        push_gc_udata<detail::class_registry>(L, &detail::classes_tag, L);
-        push_gc_udata<detail::class_id_map>(L, &detail::classid_map_tag);
-        push_gc_udata<detail::cast_graph>(L, &detail::cast_graph_tag);
-        push_gc_udata<detail::class_map>(L, &detail::class_map_tag);
+        push_gc_udata(L, &detail::classes_tag, static_cast<detail::class_registry*>(0), L);
+        push_gc_udata(L, &detail::classid_map_tag, static_cast<detail::class_id_map*>(0));
+        push_gc_udata(L, &detail::cast_graph_tag, static_cast<detail::cast_graph*>(0));
+        push_gc_udata(L, &detail::class_map_tag, static_cast<detail::class_map*>(0));
 
         // add functions (class, cast etc...)
         lua_pushcfunction(L, detail::create_class::stage1);
