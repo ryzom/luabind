@@ -740,6 +740,18 @@ namespace adl
           m_handle.swap(other.m_handle);
       }
 
+#if defined(BOOST_MSVC) && (BOOST_MSVC <= 1200)
+      // VC6's implicit copy assignment copies the one-byte object_interface
+      // base over the first byte of m_handle (the empty base shares its
+      // address), so handle's copy-and-swap would then release the old
+      // reference through a corrupted lua_State pointer. Assign the handle only.
+      object& operator=(object const& other)
+      {
+          m_handle = other.m_handle;
+          return *this;
+      }
+#endif
+
   private:
       handle m_handle;
   };
