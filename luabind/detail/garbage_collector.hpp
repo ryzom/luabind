@@ -30,15 +30,11 @@
 
 namespace luabind { namespace detail
 {
-    // function that is used as __gc metafunction on several objects
-    template<class T>
-    inline int LUABIND_CDECL garbage_collector(lua_State* L)
-    {
-        T* obj = static_cast<T*>(lua_touserdata(L, -1));
-        obj->~T();
-        return 0;
-    }
-
+    // __gc metafunction that destroys the T in a userdata. A static member of
+    // a class template rather than a function template garbage_collector<T>:
+    // VC6 leaves explicitly specified template arguments out of a function's
+    // decorated name, so &garbage_collector<A> and &garbage_collector<B>
+    // would be the same function there.
     template<class T>
     struct garbage_collector_s
     {
